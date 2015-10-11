@@ -3,7 +3,7 @@
 $plugins = array();
 
  
-$plugin_name = PKG_NAME_LOWER;
+$plugin_name = PKG_NAME;
 $content = getSnippetContent($sources['plugins'] . $plugin_name . '.plugin.php');
 
 if(!empty($content)){
@@ -13,7 +13,7 @@ if(!empty($content)){
    */
   
   $plugin = $modx->newObject('modPlugin');
-  $plugin->set('id', 1);
+  $plugin->set('id', 0);
   $plugin->set('name', $plugin_name );
   $plugin->set('description', $plugin_name.'_desc');
   $plugin->set('plugincode', $content );
@@ -22,10 +22,17 @@ if(!empty($content)){
   /* add plugin events */
   $events = array();
   
-  $events['OnHandleRequest'] = $modx->newObject('modPluginEvent');
-  $events['OnHandleRequest'] -> fromArray(array(
-   'event' => 'OnHandleRequest',
-   'priority' => 0,
+  $events['OnMODXInit'] = $modx->newObject('modPluginEvent');
+  $events['OnMODXInit'] -> fromArray(array(
+   'event' => 'OnMODXInit',
+   'priority' => -1000,
+   'propertyset' => 0,
+  ),'',true,true);
+  
+  $events['OnWebPageComplete'] = $modx->newObject('modPluginEvent');
+  $events['OnWebPageComplete'] -> fromArray(array(
+   'event' => 'OnWebPageComplete',
+   'priority' => 1000,
    'propertyset' => 0,
   ),'',true,true);
   

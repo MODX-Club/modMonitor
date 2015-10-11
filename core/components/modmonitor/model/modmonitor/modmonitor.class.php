@@ -22,8 +22,10 @@ class modMonitor{
             $modx_db = $this->modx->getOption('dbname', null);
             $dbase = $this->modx->getOption('modmonitor.dbname', null, $modx_db);
             
-            
-            if($dbase != $modx_db){
+            if(
+                $dbase 
+                AND $dbase != $modx_db
+            ){
                 # $this->modx->log(1, "$modx_db");
                 # $this->modx->log(1, "$dbase");
                 
@@ -75,7 +77,7 @@ class modMonitor{
             "uuid"  => $this->modx->uuid,
             "path"  => MODX_BASE_PATH,
             "site_url"  => MODX_SITE_URL,
-            "id"        => $ip,
+            "ip"        => $ip,
             "url"       => $_SERVER['REQUEST_URI'],
         ));
         
@@ -131,6 +133,7 @@ class modMonitor{
                 case 'db_queries_time':
                 case 'php_memory':
                 case 'time':
+                case 'context_key':
                 case 'resource_id':
                 case 'phptemplates_non_cached':
                     

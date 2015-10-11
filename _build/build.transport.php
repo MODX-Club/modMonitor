@@ -1,6 +1,6 @@
 <?php
 
-$pkg_name = 'SamplePackage';
+$pkg_name = 'modMonitor';
 
 /* define package */
 define('PKG_NAME', $pkg_name);
@@ -10,7 +10,7 @@ define('NAMESPACE_NAME', PKG_NAME_LOWER);
 define('PKG_PATH', PKG_NAME_LOWER);
 define('PKG_CATEGORY', PKG_NAME);
 
-$pkg_version = '0.0.0';
+$pkg_version = '1.0.0';
 $pkg_release = 'beta';
 define('PKG_VERSION', $pkg_version);
 define('PKG_RELEASE', $pkg_release);
@@ -61,7 +61,7 @@ include_once $sources['builder_includes'] . 'namespace.php';
 /* 
  * Create system settings via vehicle
  */
-# include_once $sources['builder_includes'] . 'system.settings.php';
+include_once $sources['builder_includes'] . 'system.settings.php';
 
 /*
  * Create custom system settings via vehicle 
@@ -74,7 +74,7 @@ include_once $sources['builder_includes'] . 'namespace.php';
 include_once $sources['builder_includes'] . 'category.php';
 
 /* add plugins */
-# include_once $sources['builder_includes'] . 'plugins.php';
+include_once $sources['builder_includes'] . 'plugins.php';
 
 /* add snippets */
 # include_once $sources['builder_includes'] . 'snippets.php';
@@ -92,14 +92,14 @@ $vehicle = $builder->createVehicle($category,$attr);
 /*
  * Adding sources (3 sources by default)
  */
-# include_once $sources['resolvers'] . 'resolver.sources.php';
+include_once $sources['resolvers'] . 'resolver.sources.php';
 
 /*
  * Adding resolvers
  */
 $modx->log(modX::LOG_LEVEL_INFO,'Adding in PHP resolvers...'); flush();
-# include_once $sources['builder_includes'] . 'resolver.tables.wrapper.php';
-# include_once $sources['builder_includes'] . 'resolver.register.wrapper.php';
+include_once $sources['builder_includes'] . 'resolver.register.wrapper.php';
+include_once $sources['builder_includes'] . 'resolver.tables.wrapper.php';
 // eof adding resolvers
 
 $builder->putVehicle($vehicle);

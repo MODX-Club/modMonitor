@@ -21,6 +21,7 @@ class modMonitorParser extends modParser{
         
         # $this->debug(1, $class);
         # $this->debug(1, $name);
+        $name = $this->realname($name);
         
         $element = parent::getElement($class, $name);
         

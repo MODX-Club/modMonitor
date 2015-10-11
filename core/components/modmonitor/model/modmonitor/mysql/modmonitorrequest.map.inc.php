@@ -9,6 +9,7 @@ $xpdo_meta_map['modMonitorRequest']= array (
     'path' => NULL,
     'site_url' => NULL,
     'url' => NULL,
+    'context_key' => NULL,
     'resource_id' => NULL,
     'http_status' => 200,
     'uuid' => NULL,
@@ -42,6 +43,13 @@ $xpdo_meta_map['modMonitorRequest']= array (
     array (
       'dbtype' => 'varchar',
       'precision' => '1024',
+      'phptype' => 'string',
+      'null' => false,
+    ),
+    'context_key' => 
+    array (
+      'dbtype' => 'varchar',
+      'precision' => '100',
       'phptype' => 'string',
       'null' => false,
     ),
