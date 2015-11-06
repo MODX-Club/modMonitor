@@ -21,7 +21,7 @@ class modMonitorParser extends modParser{
         
         # $this->debug(1, $class);
         # $this->debug(1, $name);
-        $name = $this->realname($name);
+        $realname = $this->realname($name);
         
         $element = parent::getElement($class, $name);
         
@@ -76,7 +76,7 @@ class modMonitorParser extends modParser{
             # }
         }
         else{
-            $this->modx->log(1, "Не был получен элемент {$class} '{$name}'");
+            $this->modx->log(1, "Не был получен элемент {$class} '{$realname}'");
         }
         
         return $element;
