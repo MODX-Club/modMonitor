@@ -17,6 +17,7 @@ if(!empty($content)){
   $plugin->set('name', $plugin_name );
   $plugin->set('description', $plugin_name.'_desc');
   $plugin->set('plugincode', $content );
+  $plugin->set('disabled', 0);
   
   
   /* add plugin events */

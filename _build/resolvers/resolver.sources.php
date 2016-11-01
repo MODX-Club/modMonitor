@@ -13,12 +13,12 @@ $modx->log(modX::LOG_LEVEL_INFO,'Packaged in CorePath'); flush();
 # ));
 # $modx->log(modX::LOG_LEVEL_INFO,'Packaged in AssetsPath'); flush();
 
-// Add manager source
-# $vehicle->resolve('file',array(
-#     'source' => $sources['source_manager'],
-#     'target' => "return MODX_MANAGER_PATH . 'components/';",
-# ));
-# $modx->log(modX::LOG_LEVEL_INFO,'Packaged in ManagerPath'); flush();
+# Add manager source
+$vehicle->resolve('file',array(
+    'source' => $sources['source_manager'],
+    'target' => "return MODX_MANAGER_PATH . 'components/';",
+));
+$modx->log(modX::LOG_LEVEL_INFO,'Packaged in ManagerPath'); flush();
 
 // Add site base path source
 # $vehicle->resolve('file',array(

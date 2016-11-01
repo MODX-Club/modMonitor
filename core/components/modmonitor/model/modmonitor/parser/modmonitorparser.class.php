@@ -4,7 +4,8 @@ $this->loadClass('modSnippet');
 $this->loadClass('modChunk');
 $this->loadClass('modTemplateVar');
 
-class modMonitorParser extends modParser{
+
+trait modMonitorParserTrait{
     
     # protected $debug = false;
     
@@ -15,7 +16,6 @@ class modMonitorParser extends modParser{
     #     # die('modMonitorParser' . __FILE__);
     #     return parent::__construct($modx);
     # }
-    
     
     public function getElement($class, $name) {
         
@@ -101,6 +101,11 @@ class modMonitorParser extends modParser{
     #     return;
     # }
     
+}
+
+
+class modMonitorParser extends modParser{
+    use modMonitorParserTrait;
 }
 
 

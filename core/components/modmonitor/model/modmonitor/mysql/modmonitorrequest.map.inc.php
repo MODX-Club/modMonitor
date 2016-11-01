@@ -13,6 +13,7 @@ $xpdo_meta_map['modMonitorRequest']= array (
     'resource_id' => NULL,
     'http_status' => 200,
     'uuid' => NULL,
+    'user_id' => 0,
     'ip' => NULL,
     'date' => 'CURRENT_TIMESTAMP',
     'from_cache' => '0',
@@ -77,6 +78,15 @@ $xpdo_meta_map['modMonitorRequest']= array (
       'precision' => '36',
       'phptype' => 'string',
       'null' => false,
+    ),
+    'user_id' => 
+    array (
+      'dbtype' => 'int',
+      'precision' => '10',
+      'attributes' => 'unsigned',
+      'phptype' => 'integer',
+      'null' => false,
+      'default' => 0,
     ),
     'ip' => 
     array (
@@ -205,6 +215,22 @@ $xpdo_meta_map['modMonitorRequest']= array (
           'length' => '',
           'collation' => 'A',
           'null' => true,
+        ),
+      ),
+    ),
+    'user_id' => 
+    array (
+      'alias' => 'user_id',
+      'primary' => false,
+      'unique' => false,
+      'type' => 'BTREE',
+      'columns' => 
+      array (
+        'user_id' => 
+        array (
+          'length' => '',
+          'collation' => 'A',
+          'null' => false,
         ),
       ),
     ),

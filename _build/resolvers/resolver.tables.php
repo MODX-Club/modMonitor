@@ -5,6 +5,7 @@ $pkgNameLower = strtolower($pkgName);
 if ($object->xpdo) {
   switch ($options[xPDOTransport::PACKAGE_ACTION]) {
     case xPDOTransport::ACTION_INSTALL:
+    case xPDOTransport::ACTION_UPGRADE:
       $modx =& $object->xpdo;
       $modelPath = $modx->getOption("{$pkgNameLower}.core_path",null,$modx->getOption('core_path')."components/{$pkgNameLower}/").'model/';
       $modx->addPackage($pkgNameLower,$modelPath);
@@ -16,10 +17,11 @@ if ($object->xpdo) {
       $manager->createObjectContainer('modMonitorRequest');
       $manager->createObjectContainer('modMonitorRequestItem');
 
+      $manager->addField('modMonitorRequest', 'user_id');
+      $manager->addIndex('modMonitorRequest', 'user_id');
+      
       $modx->setLogLevel(modX::LOG_LEVEL_INFO);
 
-      break;
-    case xPDOTransport::ACTION_UPGRADE:
       break;
   }
 }

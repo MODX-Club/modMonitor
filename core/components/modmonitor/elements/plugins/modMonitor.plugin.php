@@ -11,20 +11,48 @@ switch($modx->event->name){
     case 'OnMODXInit':
         // $modx->setLogLevel(3);
         // $modx->setLogTarget('HTML');
-        $parser_class = $modx->getOption('parser_class', null, 'modParser');
         
-        if($parser_class != 'modParser'){
-            $modx->log(1, "[ modMonitor plugin ]. Используется модифицированный парсер. modMonitor работает только с базовым парсером modParser");
-            return;
+        # print class_exists("modParser");
+        # exit;
+        
+        if(!$new_parser_class = $modx->getOption('modmonitor.parser_class', null)){
+            
+            $parser_class = $modx->getOption('parser_class', null, 'modParser');
+            # $parser_class_path = $modx->getOption('parser_class_path', null, 'modParser');
+            
+            switch($parser_class){
+                
+                case "modParser":
+                    $new_parser_class = "modMonitorParser";
+                    break;
+                
+                case "pdoParser":
+                    $new_parser_class = "modMonitorPdoParser";
+                    break;
+                    
+                default: 
+                    $modx->log(1, "[ modMonitor plugin ]. Используется модифицированный парсер. modMonitor работает только с базовым парсером modParser и с pdoParser.");
+                    return;
+            }
+            
+            # $modx->setOption('modmonitor.original_parser_class', $parser_class);
         }
         
-        // else
-        unset($modx->services['parser']);
+        if($new_parser_class){
+            
+            # print $new_parser_class;
+            # 
+            # exit;
+            
+            // else
+            unset($modx->services['parser']);
+            
+            $modx->setOption('parser_class', $new_parser_class);
+            $modx->setOption('parser_class_path', $modx->getOption('modmonitor.parser_class_path', null, MODX_CORE_PATH . 'components/modmonitor/model/modmonitor/parser/'));
+            
+            $modMonitor->createRequest();
+        }
         
-        $modx->setOption('parser_class', $modx->getOption('modmonitor.parser_class', null, 'modMonitorParser'));
-        $modx->setOption('parser_class_path', $modx->getOption('modmonitor.parser_class_path', null, MODX_CORE_PATH . 'components/modmonitor/model/modmonitor/'));
-        
-        $modMonitor->createRequest();
         // die('ewfwef');
         
         break;
@@ -62,7 +90,10 @@ switch($modx->event->name){
         $modMonitor->setRequestValue('context_key', $modx->context->key);
         $modMonitor->setRequestValue('resource_id', isset($modx->resource) ? $modx->resource->id : null);
         $modMonitor->setRequestValue('phptemplates_non_cached', isset($templete_properties['phptemplates.non-cached']) ? (int)$templete_properties['phptemplates.non-cached'] : 0);
+        $modMonitor->setRequestValue('user_id', $modx->user->id);
+        $modMonitor->setRequestValue('from_cache', !$modx->resourceGenerated);
         
+        # print (int)$this->modx->resourceGenerated;
         // $modx->log(1, print_r($templete_properties, 1));
         
         $modMonitor->saveRequest();

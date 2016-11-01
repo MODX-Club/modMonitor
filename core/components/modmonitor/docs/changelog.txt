@@ -1,0 +1,16 @@
+modMonitor-2.1.0-beta
+================================
+- Added pdoParser support
+- Added from_cache flag in statistic
+- Minor bugfix
+
+
+modMonitor-2.0.0-beta
+================================
+- Added visual interface in manager panel
+- Added log user_id
+
+
+modMonitor-1.0.0-beta
+================================
+- First release

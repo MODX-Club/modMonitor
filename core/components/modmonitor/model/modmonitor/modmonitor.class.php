@@ -136,6 +136,8 @@ class modMonitor{
                 case 'context_key':
                 case 'resource_id':
                 case 'phptemplates_non_cached':
+                case 'user_id':
+                case 'from_cache':
                     
                     break;
                     
