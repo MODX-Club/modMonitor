@@ -19,6 +19,14 @@ if ($object->xpdo) {
 
       $manager->addField('modMonitorRequest', 'user_id');
       $manager->addIndex('modMonitorRequest', 'user_id');
+
+      $manager->addField('modMonitorRequest', 'parent');
+      $manager->addIndex('modMonitorRequest', 'parent');
+
+      $manager->addField('modMonitorRequestItem', 'parent');
+      $manager->addIndex('modMonitorRequestItem', 'parent');
+
+      $manager->addField('modMonitorRequestItem', 'properties');
       
       $modx->setLogLevel(modX::LOG_LEVEL_INFO);
 

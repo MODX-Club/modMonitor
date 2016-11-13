@@ -1,7 +1,8 @@
 <?php
 if(
-    $modx->context->key == 'mgr'
-    OR !$modMonitor = & $modx->getService('modMonitor')
+    // $modx->context->key == 'mgr'
+    // OR 
+    !$modMonitor = & $modx->getService('modMonitor')
 ){
     return;
 }
@@ -14,6 +15,11 @@ switch($modx->event->name){
         
         # print class_exists("modParser");
         # exit;
+        
+        register_shutdown_function(array (
+            & $modMonitor,
+            "shutdown"
+        ));
         
         if(!$new_parser_class = $modx->getOption('modmonitor.parser_class', null)){
             
@@ -55,47 +61,33 @@ switch($modx->event->name){
         
         // die('ewfwef');
         
+        // register_shutdown_function($modMonitor->shutdown);
+        
+        
         break;
         
-    case 'OnWebPageComplete':
-        
-        $memory = round(memory_get_usage()/1024/1024, 2);
-
-        // print "<div>Memory: {$memory}</div>";
-        
-        $totalTime= (microtime(true) - $modx->startTime);
-        $queryTime= $modx->queryTime;
-        // $queryTime= sprintf("%2.4f s", $queryTime);
-        $queries= isset ($modx->executedQueries) ? $modx->executedQueries : 0;
-        // $totalTime= sprintf("%2.4f s", $totalTime);
-        $phpTime= $totalTime - $queryTime;
-        // $phpTime= sprintf("%2.4f s", $phpTime);
-        // $modx->log(1, "<div>TotalTime: {$totalTime}</div>");
-        
-        $templete_properties = array();
-        
-        // $modx->log(1, get_class($modx->resource));
-        // $modx->log(1, get_class($modx->resource->Template));
-        
-        
-        
-        if($templete = $modx->resource->Template){
-            $templete_properties = $templete->getProperties();
-        }
-        
-        $modMonitor->setRequestValue('db_queries', $queries);
-        $modMonitor->setRequestValue('db_queries_time', round($queryTime, 4));
-        $modMonitor->setRequestValue('php_memory', $memory);
-        $modMonitor->setRequestValue('time', round($totalTime, 4));
-        $modMonitor->setRequestValue('context_key', $modx->context->key);
-        $modMonitor->setRequestValue('resource_id', isset($modx->resource) ? $modx->resource->id : null);
-        $modMonitor->setRequestValue('phptemplates_non_cached', isset($templete_properties['phptemplates.non-cached']) ? (int)$templete_properties['phptemplates.non-cached'] : 0);
-        $modMonitor->setRequestValue('user_id', $modx->user->id);
-        $modMonitor->setRequestValue('from_cache', !$modx->resourceGenerated);
-        
-        # print (int)$this->modx->resourceGenerated;
-        // $modx->log(1, print_r($templete_properties, 1));
+    case 'OnWebPagePrerender':
         
         $modMonitor->saveRequest();
+        
+        if($modx->getOption('modmonitor.add_javascript', null)){
+            if(!empty($modMonitor->request->id) AND strpos($modx->resource->_output, '</head>') !== false){
+                $js = "<script type=\"text/javascript\">
+                    window.modMonitorObjectId = {$modMonitor->request->id};
+                    (function(open) { 
+                        XMLHttpRequest.prototype.open = function(method, url, async, user, pass) {
+                            open.call(this, method, url, async, user, pass);
+                            this.setRequestHeader('modmonitor-object-id', window.modMonitorObjectId);
+                        };
+                    })(XMLHttpRequest.prototype.open);
+                </script>";
+                
+                $modx->resource->_output= preg_replace("/(<\/head>)/i", $js . "\n\\1", $modx->resource->_output,1);
+            }
+        }
+        
+        
+        
         break;
+        
 }

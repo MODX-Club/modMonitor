@@ -30,10 +30,10 @@ if(!empty($content)){
    'propertyset' => 0,
   ),'',true,true);
   
-  $events['OnWebPageComplete'] = $modx->newObject('modPluginEvent');
-  $events['OnWebPageComplete'] -> fromArray(array(
-   'event' => 'OnWebPageComplete',
-   'priority' => 1000,
+  $events['OnWebPagePrerender'] = $modx->newObject('modPluginEvent');
+  $events['OnWebPagePrerender'] -> fromArray(array(
+   'event' => 'OnWebPagePrerender',
+   'priority' => 0,
    'propertyset' => 0,
   ),'',true,true);
   

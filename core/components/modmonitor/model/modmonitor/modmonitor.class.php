@@ -5,8 +5,8 @@ class modMonitor{
     public $modx;
     public $xpdo;
     protected $connection;
-    protected $request;
-    protected $items = array();
+    public $request;
+    public $items = array();
     
     
     function __construct(xPDO $modx){
@@ -64,6 +64,12 @@ class modMonitor{
     
     
     public function createRequest(array $data = array()){
+        if($exclude_contexts = $this->modx->getOption("modmonitor.exclude_contexts", null)){
+            if(in_array($this->modx->context->key, array_map("trim", explode(",", $exclude_contexts)))){
+                return;
+            }
+        }
+        
         
         if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
             $ip = $_SERVER['HTTP_CLIENT_IP'];
@@ -79,7 +85,9 @@ class modMonitor{
             "site_url"  => MODX_SITE_URL,
             "ip"        => $ip,
             "url"       => $_SERVER['REQUEST_URI'],
+            "parent"    => !empty($_SERVER['HTTP_MODMONITOR_OBJECT_ID']) ? (int)$_SERVER['HTTP_MODMONITOR_OBJECT_ID'] : null,
         ));
+        
         
         if(!$this->request){
             $this->request = $this->xpdo->newObject('modMonitorRequest', $data);
@@ -90,36 +98,122 @@ class modMonitor{
     
     
     public function saveRequest(){
-        $saved = false;
+        $modx = & $this->modx;
         
         if(
-            $this->request 
-            AND $this->request->isNew()
+            !$this->request 
+            # OR !$this->request->isNew()
         ){
-            if($this->items){
-                $this->request->addMany($this->items);
-            }
-            
-            # print '<pre>';
-            # print_r($this->request->toArray());
-            # exit;
-            
-            $saved = $this->request->save();
+            return;
         }
         
-        return $saved;
+        if($this->items){
+            $this->request->addMany($this->items);
+            unset($this->items);
+        }
+        
+        # print '<pre>';
+        # print_r($this->request->toArray());
+        # exit;
+        
+    
+        $memory = round(memory_get_usage()/1024/1024, 2);
+
+        // print "<div>Memory: {$memory}</div>";
+        
+        $totalTime= (microtime(true) - $modx->startTime);
+        $queryTime= $modx->queryTime;
+        // $queryTime= sprintf("%2.4f s", $queryTime);
+        $queries= isset ($modx->executedQueries) ? $modx->executedQueries : 0;
+        // $totalTime= sprintf("%2.4f s", $totalTime);
+        $phpTime= $totalTime - $queryTime;
+        // $phpTime= sprintf("%2.4f s", $phpTime);
+        // $modx->log(1, "<div>TotalTime: {$totalTime}</div>");
+        
+        $templete_properties = array();
+        
+        // $modx->log(1, get_class($modx->resource));
+        // $modx->log(1, get_class($modx->resource->Template));
+        
+        
+        if(!empty($modx->resource) AND $templete = $modx->resource->Template){
+            $templete_properties = $templete->getProperties();
+        }
+        
+        $this->setRequestValue('db_queries', $queries);
+        $this->setRequestValue('db_queries_time', round($queryTime, 4));
+        $this->setRequestValue('php_memory', $memory);
+        $this->setRequestValue('time', round($totalTime, 4));
+        $this->setRequestValue('context_key', $modx->context->key);
+        $this->setRequestValue('resource_id', isset($modx->resource) ? $modx->resource->id : null);
+        $this->setRequestValue('phptemplates_non_cached', isset($templete_properties['phptemplates.non-cached']) ? (int)$templete_properties['phptemplates.non-cached'] : 0);
+        $this->setRequestValue('user_id', $modx->user->id);
+        $this->setRequestValue('from_cache', !$modx->resourceGenerated);
+        
+        if(
+            $min_time_for_save = (float)$this->modx->getOption("modmonitor.min_time_for_save", null)
+            AND $min_time_for_save > $this->request->time
+        ){
+            return;
+        }
+        
+        $this->request->save();
+        
+        # $this->modx->resource->_output = '';
+        
+        # if (!empty($this->request) AND $this->request->id) {
+        #     
+        #     
+        #     
+        # }
     }
     
-    public function addItem(array $data){
+    
+    public function shutdown(){
+        
+        
+        
+        $this->saveRequest();
+        
+
+        
+    }
+    
+    
+    public function addItem($object){
         # $data = array_merge();
         $added = false;
         
+        if(!is_object($object)){
+            $object = $this->xpdo->newObject('modMonitorRequestItem', $object);
+        }
+        else if(!($object instanceof modMonitorRequestItem)){
+            return $added;
+        }
+        
         if($this->request){
-            $this->items[] = $this->xpdo->newObject('modMonitorRequestItem', $data);
+            
+            if(!$this->item){
+                $this->items[] = $object;
+            }
+            else{
+                $children = $this->item->Children;
+                $children[] = $object;
+                $this->item->Children = $children;
+            }
+            
+            $this->item = $object;
+            
             $added = true;
         }
         
         return $added;
+    }
+    
+    public function unsetItem($item){
+        if($this->item === $item){
+            $this->item = null;
+        }
     }
     
     

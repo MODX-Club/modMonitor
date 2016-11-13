@@ -6,7 +6,7 @@ class ModmonitorControllersMgrIndexManagerController extends modExtraManagerCont
     
     
     public function checkPermissions() {
-        return $this->modx->hasPermission('yley.edit_company');
+        return $this->modx->hasPermission('modmonitor');
     }
     
     public function getPageTitle(){
@@ -55,6 +55,7 @@ class ModmonitorControllersMgrIndexManagerController extends modExtraManagerCont
         # $this->addCss($this->config['assets_url'].'css/modmonitor.css');
         
         $this->addJavascript($this->config['assets_url'].'js/modmonitor.js');
+        $this->addJavascript($this->config['assets_url'].'js/widgets/modmonitor.tree.js');
         $this->addJavascript($this->config['assets_url'].'js/widgets/modmonitor.grid.js');
         $this->addJavascript($this->config['assets_url'].'js/widgets/modmonitor.panel.js');
         

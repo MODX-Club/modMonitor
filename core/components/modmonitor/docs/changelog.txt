@@ -1,3 +1,14 @@
+modMonitor-2.2.0-beta
+================================
+- Added parents for request and items
+- Added filters
+- Added items tree interface
+- Minor bugfixes
+- Added exclude contexts setting
+- Added min time setting
+- Added truncate button
+
+
 modMonitor-2.1.0-beta
 ================================
 - Added pdoParser support

@@ -27,8 +27,11 @@ modMonitor.grid.RequestItems = function(config){
         ,remoteSort: true
         ,fields: [
             'id'
+            ,'request_id'
             ,'type'
             ,'name'
+            ,'properties'
+            ,'parent'
             ,'time'
             ,'php_memory'
             ,'db_queries'
@@ -69,6 +72,26 @@ Ext.extend(modMonitor.grid.RequestItems, MODx.grid.Grid,{
                     ,editable: false
                     // ,hidden: true
                 }
+                ,{
+                    header: 'Родитель'
+                    ,dataIndex: 'parent'
+                    // ,hidden: true
+                    // ,editor: 'date'
+                    // ,renderer: function(value, cell, record){
+                    //     
+                    //     if(value > 0.2){
+                    //         cell.style = cell.style + ";color:red;";
+                    //     }
+                    //     
+                    //     return value;
+                    // }
+                }
+                ,{
+                    header: 'ID запроса'
+                    ,dataIndex: 'request_id'
+                    ,editable: false
+                    // ,hidden: true
+                }
                 // ,{
                 //     header: 'Услуга'
                 //     ,dataIndex: 'service_id'
@@ -100,6 +123,10 @@ Ext.extend(modMonitor.grid.RequestItems, MODx.grid.Grid,{
                         
                         return value;
                     }
+                }
+                ,{
+                    header: 'Свойства'
+                    ,dataIndex: 'properties'
                 }
                 ,{
                     header: 'Общее время'
@@ -336,6 +363,7 @@ modMonitor.grid.Requests = function(config){
         ,remoteSort: true
         ,fields: [
             'id'
+            ,'parent'
             ,'url'
             ,'date'
             ,'context_key'
@@ -343,12 +371,14 @@ modMonitor.grid.Requests = function(config){
             ,'resource_id'
             ,'http_status'
             ,'user_id'
+            ,'username'
             ,'ip'
             ,'time'
             ,'php_memory'
             ,'db_queries'
             ,'db_queries_time'
             ,'from_cache'
+            ,'resource_url'
             ,'menu'
         ]
         ,paging: true
@@ -358,12 +388,182 @@ modMonitor.grid.Requests = function(config){
 
     this.config = config;
 
+    config.tbar = this.getToolbar();
+    
     modMonitor.grid.Requests.superclass.constructor.call(this,config);
 };
 
 Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
 
-    _loadExpander: function(){
+    getToolbar: function(){
+
+        this.searchField = new Ext.form.TextField({
+            width: 300
+            ,enableKeyEvents: true
+            ,name: 'query'
+            ,emptyText: "Адрес или ID. % - все символы, _ - один"
+            ,listeners:{
+
+                // При изменении
+                change: {
+                    fn: function(field, e){
+                        if(field.isDirty()){
+                            field.originalValue = field.getValue();
+                            this.getStore().setBaseParam( field.name, field.getValue() );
+                            this.search();
+                        }
+                    }
+                    ,scope: this
+                }
+                ,keyup: {
+                    fn: function(field, e){
+                        // Если нажали ENTERsearchField
+                        if(e.getKey() == e.ENTER){
+                            field.fireEvent('change', field, e);
+                        }
+                    }
+                    ,scope: this
+                }
+            }
+        });
+
+        this.timeSearchField = new Ext.form.NumberField({
+            enableKeyEvents: true
+            ,name: 'time'
+            ,emptyText: "Время"
+            // ,decimalPrecision: 2
+            ,listeners:{
+
+                // При изменении
+                change: {
+                    fn: function(field, e){
+                        if(field.isDirty()){
+                            field.originalValue = field.getValue();
+                            this.getStore().setBaseParam( field.name, field.getValue() );
+                            this.search();
+                        }
+                    }
+                    ,scope: this
+                }
+                ,keyup: {
+                    fn: function(field, e){
+
+                        // Если нажали ENTER
+                        if(e.getKey() == e.ENTER){
+                            field.fireEvent('change', field, e);
+                            // this.search();
+                        }
+                    }
+                    ,scope: this
+                }
+            }
+        });
+        
+        this.cacheSearchField = new MODx.combo.ComboBox({
+            boxLabel: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Кеш'
+            ,name: 'from_cache'
+            ,mode: 'local'
+            ,emptyText: "Кеш"
+            ,store: new Ext.data.SimpleStore({
+                fields: ['d','v']
+                ,data: [['Все', ''],['Из кеша','1'],['Не из кеша','2']]
+            })
+            ,displayField: 'd'
+            ,valueField: 'v'
+            ,listeners:{
+                select: {
+                    fn: function(field, value){
+                        this.getStore().setBaseParam( field.name, field.getValue() );
+                        this.search();
+                    }
+                    ,scope: this
+                }
+            }
+            ,scope: this
+        });
+
+        this.SearchButton = new Ext.Button({
+            text: 'Найти'
+            ,scope: this
+            ,handler: this.search
+        });
+
+        this.ClearButton = new Ext.Button({
+            text: 'Сброс'
+            ,scope: this
+            ,handler: this.clear
+        });
+
+        return new Ext.Toolbar({
+            defaults:{
+                style: "margin: 0 3px;"
+            }
+            ,items: [
+                // {
+                //     xtype: 'label'
+                //     ,text: 'Поиск'
+                //     ,style: 'font-size: 16px;'
+                // }
+                // ,
+                this.searchField
+                // ,{
+                //     xtype: 'label'
+                //     ,text: 'Время'
+                //     ,style: 'font-size: 16px;'
+                // }
+                ,this.timeSearchField
+                
+                ,this.cacheSearchField
+                ,this.SearchButton
+                ,this.ClearButton
+                ,'->'
+                ,{
+                    text: "Очистить"
+                    ,cls: 'x-btn tree-trash'
+                    ,handler: this.truncateStatistique
+                    ,scope: this
+                }
+            ]
+        });
+    }
+    
+    
+    ,clear: function(){
+        this.searchField.setValue('');
+        this.timeSearchField.setValue('');
+        this.cacheSearchField.setValue('');
+        
+        this.getStore().setBaseParam( this.searchField.name, '' );
+        this.getStore().setBaseParam( this.timeSearchField.name, '' );
+        this.getStore().setBaseParam( this.cacheSearchField.name, '' );
+        
+        // this.searchField.fireEvent('change', this.searchField);
+        this.search();
+    }
+    
+    ,search: function(){
+        this.getBottomToolbar().changePage(0);
+    }
+    
+    ,truncateStatistique: function(){
+        
+        MODx.msg.confirm({
+          text: "Удалить всю статистику? Это безвозвратно."
+          ,url: modMonitor.config.connector_url + '?action=requests/truncate'
+          ,listeners: {
+              success: {
+                  fn: function(){
+                      // console.log(this);
+                      this.search();
+                  }
+                  ,scope: this
+              }
+          }
+        });
+    }
+
+
+    ,_loadExpander: function(){
         this.expander = new Ext.ux.grid.RowExpander({
             tpl : new Ext.Template(
                 '<div id="request-row-{id}"></div>'
@@ -378,7 +578,7 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                     console.log(id);
                     console.log(Ext.get('request-row-' + id));
                     
-                    this.expander.Grids[id] = new modMonitor.grid.RequestItems({
+                    this.expander.Grids[id] = new modMonitor.tree.RequestsTree({
                         renderTo: Ext.get('request-row-' + id)
                         ,request_id: id
                         // ,url: this.url
@@ -418,6 +618,11 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                     // ,hidden: true
                 }
                 ,{
+                    header: 'Родитель'
+                    ,dataIndex: 'parent'
+                    // ,hidden: true
+                }
+                ,{
                     header: 'Контекст'
                     ,dataIndex: 'context_key'
                     ,hidden: true
@@ -425,6 +630,20 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                 ,{
                     header: 'Адрес'
                     ,dataIndex: 'url'
+                    ,renderer: function(value, cell, record){
+                        var resource_url = record.get('resource_url');
+                        var user_id = record.get('user_id');
+                        
+                        if(resource_url !== '' && resource_url !== null){
+                            value = '<a href="'+ resource_url +'" target="_blank" style="display:inline-block;padding-right: 10px;">'+ value +'</a>';
+                        }
+                        
+                        if(user_id !== '' && user_id !== null && user_id != '0' && user_id != MODx.user.id){
+                            value = value + ' <a href="'+ resource_url +'?switch_user='+ user_id +'" target="_blank" title="Авторизоваться от имени '+ record.get('username') +'"><i class="icon icon-user"></i></a>';
+                        }
+                        
+                        return value;
+                    }
                 }
                 ,{
                     header: 'Дата'
@@ -439,8 +658,17 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                     ,dataIndex: 'ip'
                 }
                 ,{
-                    header: 'ID Пользователя'
+                    header: 'Пользователь'
                     ,dataIndex: 'user_id'
+                    ,renderer: function(value, cell, record){
+                        var username = record.get('username');
+                        
+                        if(username !== '' && username !== null){
+                            value = username + ' (' + value + ')';
+                        }
+                        
+                        return value;
+                    }
                 }
                 ,{
                     header: 'Статус запроса'

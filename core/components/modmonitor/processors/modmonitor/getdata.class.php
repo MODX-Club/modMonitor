@@ -5,6 +5,9 @@ require_once MODX_CORE_PATH . 'components/modxsite/processors/site/web/getdata.c
 abstract class modModmonitorGetdataProcessor extends modSiteWebGetdataProcessor{
     
     
+    public $permission = "modmonitor";
+    
+    
     public function outputArray(array $array, $count = false){
         
         $result = parent::outputArray($array, $count);
@@ -16,6 +19,10 @@ abstract class modModmonitorGetdataProcessor extends modSiteWebGetdataProcessor{
                 'total'   => $count,
                 "results"   => array_values((array)$result['object']),
             ));
+        }
+        
+        else if($this->getProperty("format") == "tree"){
+            $result = json_encode(array_values((array)$result['object']));
         }
         
         

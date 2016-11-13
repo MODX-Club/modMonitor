@@ -6,6 +6,7 @@ $xpdo_meta_map['modMonitorRequest']= array (
   'extends' => 'xPDOSimpleObject',
   'fields' => 
   array (
+    'parent' => 0,
     'path' => NULL,
     'site_url' => NULL,
     'url' => NULL,
@@ -25,6 +26,15 @@ $xpdo_meta_map['modMonitorRequest']= array (
   ),
   'fieldMeta' => 
   array (
+    'parent' => 
+    array (
+      'dbtype' => 'int',
+      'precision' => '10',
+      'attributes' => 'unsigned',
+      'phptype' => 'integer',
+      'null' => false,
+      'index' => 'index',
+    ),
     'path' => 
     array (
       'dbtype' => 'varchar',
@@ -158,6 +168,22 @@ $xpdo_meta_map['modMonitorRequest']= array (
   ),
   'indexes' => 
   array (
+    'parent' => 
+    array (
+      'alias' => 'parent',
+      'primary' => false,
+      'unique' => false,
+      'type' => 'BTREE',
+      'columns' => 
+      array (
+        'parent' => 
+        array (
+          'length' => '',
+          'collation' => 'A',
+          'null' => false,
+        ),
+      ),
+    ),
     'uuid' => 
     array (
       'alias' => 'uuid',
@@ -251,6 +277,15 @@ $xpdo_meta_map['modMonitorRequest']= array (
       ),
     ),
   ),
+  "aggresates"  => array(
+        "Parent" => array(
+            "class" => "modMonitorRequest",
+            "cardinality"   => "one",
+            "owner"         => "foreign",
+            "local"         => "parent",
+            "foreign"       => "id",
+        ),  
+    ),
   "composites"  => array(
         "Items" => array(
             "class" => "modMonitorRequestItem",
@@ -258,6 +293,13 @@ $xpdo_meta_map['modMonitorRequest']= array (
             "owner"         => "local",
             "local"         => "id",
             "foreign"       => "request_id",
+        ),  
+        "Children" => array(
+            "class" => "modMonitorRequest",
+            "cardinality"   => "many",
+            "owner"         => "local",
+            "local"         => "id",
+            "foreign"       => "parent",
         ),  
     ),
 );
