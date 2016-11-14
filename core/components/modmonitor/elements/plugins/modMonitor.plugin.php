@@ -35,6 +35,11 @@ switch($modx->event->name){
                 case "pdoParser":
                     $new_parser_class = "modMonitorPdoParser";
                     break;
+                
+                case "fastFieldParser":
+                    $new_parser_class = "modMonitorFastFieldParser";
+                    break;
+                    
                     
                 default: 
                     $modx->log(1, "[ modMonitor plugin ]. Используется модифицированный парсер. modMonitor работает только с базовым парсером modParser и с pdoParser.");
