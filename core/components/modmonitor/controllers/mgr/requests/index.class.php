@@ -14,7 +14,7 @@ class ModmonitorControllersMgrRequestsIndexManagerController extends ModmonitorC
         Ext.onReady(function() {
             MODx.add({
                 xtype: 'modmonitor-panel-panel'
-                ,header_title: 'Статистика запросов'
+                ,header_title: _('modmonitor.called_elements')
                 ,items:[{
                     xtype: 'modmonitor-grid-requests'
                 }]

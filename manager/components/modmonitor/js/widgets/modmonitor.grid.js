@@ -73,7 +73,7 @@ Ext.extend(modMonitor.grid.RequestItems, MODx.grid.Grid,{
                     // ,hidden: true
                 }
                 ,{
-                    header: 'Родитель'
+                    header: _("modmonitor.parent")
                     ,dataIndex: 'parent'
                     // ,hidden: true
                     // ,editor: 'date'
@@ -87,7 +87,7 @@ Ext.extend(modMonitor.grid.RequestItems, MODx.grid.Grid,{
                     // }
                 }
                 ,{
-                    header: 'ID запроса'
+                    header: _("modmonitor.request_id")
                     ,dataIndex: 'request_id'
                     ,editable: false
                     // ,hidden: true
@@ -104,13 +104,13 @@ Ext.extend(modMonitor.grid.RequestItems, MODx.grid.Grid,{
                 //     }
                 // }
                 ,{
-                    header: 'Элемент'
+                    header: _("modmonitor.element")
                     ,dataIndex: 'type'
                     // ,hidden: true
                     // ,editor: 'date'
                 }
                 ,{
-                    header: 'Имя элемента'
+                    header: _("modmonitor.name")
                     ,dataIndex: 'name'
                     // ,hidden: true
                     // ,editor: 'date'
@@ -125,11 +125,11 @@ Ext.extend(modMonitor.grid.RequestItems, MODx.grid.Grid,{
                     }
                 }
                 ,{
-                    header: 'Свойства'
+                    header: _("modmonitor.properties")
                     ,dataIndex: 'properties'
                 }
                 ,{
-                    header: 'Общее время'
+                    header: _("modmonitor.time")
                     ,dataIndex: 'time'
                     // ,hidden: true
                     // ,editor: 'date'
@@ -143,19 +143,19 @@ Ext.extend(modMonitor.grid.RequestItems, MODx.grid.Grid,{
                     }
                 }
                 ,{
-                    header: 'Запросов к БД'
+                    header: _("modmonitor.db_queries")
                     ,dataIndex: 'db_queries'
                     // ,hidden: true
                     // ,editor: 'date'
                 }
                 ,{
-                    header: 'Время запросов к БД'
+                    header: _("modmonitor.db_queries_time")
                     ,dataIndex: 'db_queries_time'
                     // ,hidden: true
                     // ,editor: 'date'
                 }
                 ,{
-                    header: 'Использовано памяти'
+                    header: _("modmonitor.php_memory")
                     ,dataIndex: 'php_memory'
                     // ,hidden: true
                     // ,editor: 'date'
@@ -274,7 +274,7 @@ Ext.extend(modMonitor.grid.RequestItems, MODx.grid.Grid,{
                 this.GroupByRequestCheckbox
                 ,{
                     xtype: 'label'
-                    ,text: "Группировать элементы"
+                    ,text: _("modmonitor.group_elements")
                 }
             ]
             // items: [{
@@ -308,7 +308,7 @@ Ext.extend(modMonitor.grid.RequestItems, MODx.grid.Grid,{
     
     ,onUpdateSuccess: function(response){
         if(!response.success){
-            MODx.msg.alert(response.message || 'Ошибка выполнения запроса');
+            MODx.msg.alert(response.message || _("modmonitor.err_request"));
             return false;
         }
         
@@ -403,7 +403,7 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
             width: 250
             ,enableKeyEvents: true
             ,name: 'query'
-            ,emptyText: "Адрес или ID. % - все символы, _ - один"
+            ,emptyText: _("modmonitor.query")
             ,listeners:{
 
                 // При изменении
@@ -430,10 +430,10 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
         });
 
         this.statusSearchField = new Ext.form.TextField({
-            width: 100
+            width: 120
             ,enableKeyEvents: true
             ,name: 'status'
-            ,emptyText: "Код ответа"
+            ,emptyText: _("modmonitor.status")
             ,listeners:{
 
                 // При изменении
@@ -462,8 +462,8 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
         this.timeSearchField = new Ext.form.NumberField({
             enableKeyEvents: true
             ,name: 'time'
-            ,emptyText: "Время"
-            ,width: 80
+            ,emptyText: _("modmonitor.time")
+            ,width: 110
             ,listeners:{
 
                 // При изменении
@@ -494,11 +494,11 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
         this.cacheSearchField = new MODx.combo.ComboBox({
             name: 'from_cache'
             ,mode: 'local'
-            ,emptyText: "Кеш"
-            ,width: 90
+            ,emptyText: _("modmonitor.from_cache")
+            ,width: 100
             ,store: new Ext.data.SimpleStore({
                 fields: ['d','v']
-                ,data: [['Все', ''],['Из кеша','1'],['Не из кеша','2']]
+                ,data: [[_("modmonitor.from_cache_all"), ''],[_("modmonitor.from_cache_1"),'1'],[_("modmonitor.from_cache_2"),'2']]
             })
             ,displayField: 'd'
             ,valueField: 'v'
@@ -516,7 +516,7 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
         
         this.contextSearchField = new MODx.combo.Context({
             name: 'context'
-            ,emptyText: "Контекст"
+            ,emptyText: _("modmonitor.context")
             ,width: 110
             ,baseParams: {
                 action: 'context/getlist'
@@ -540,7 +540,7 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
             width: 100
             ,enableKeyEvents: true
             ,name: 'php_error'
-            ,emptyText: "Код ошибки"
+            ,emptyText: _("modmonitor.php_error")
             ,listeners:{
 
                 // При изменении
@@ -567,13 +567,13 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
         });
 
         this.SearchButton = new Ext.Button({
-            text: 'Найти'
+            text: _("modmonitor.search")
             ,scope: this
             ,handler: this.search
         });
 
         this.ClearButton = new Ext.Button({
-            text: 'Сброс'
+            text: _("modmonitor.clear")
             ,scope: this
             ,handler: this.clear
         });
@@ -605,7 +605,7 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                 ,this.ClearButton
                 ,'->'
                 ,{
-                    text: "Очистить"
+                    text: _("modmonitor.truncate_stat")
                     ,cls: 'x-btn tree-trash'
                     ,handler: this.truncateStatistique
                     ,scope: this
@@ -658,7 +658,7 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
     ,truncateStatistique: function(){
         
         MODx.msg.confirm({
-          text: "Удалить всю статистику? Это безвозвратно."
+          text: _("modmonitor.truncate_confirm")
           ,url: modMonitor.config.connector_url + '?action=requests/truncate'
           ,listeners: {
               success: {
@@ -728,17 +728,16 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                     // ,hidden: true
                 }
                 ,{
-                    header: 'Родитель'
+                    header: _("modmonitor.parent")
                     ,dataIndex: 'parent'
                     // ,hidden: true
                 }
                 ,{
-                    header: 'Контекст'
+                    header: _("modmonitor.context_key")
                     ,dataIndex: 'context_key'
-                    ,hidden: true
                 }
                 ,{
-                    header: 'Адрес'
+                    header: _("modmonitor.url")
                     ,dataIndex: 'url'
                     ,width: 300
                     ,renderer: function(value, cell, record){
@@ -763,7 +762,7 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                         if(user_id !== '' && user_id !== null && user_id != '0' && user_id != MODx.user.id){
                             var auth_link = link + (/\?/.test(link) ? "&" : "?") + 'switch_user='+ user_id;
                             
-                            full_link += ' <a href="'+ auth_link +'" target="_blank" title="Авторизоваться от имени '+ record.get('username') +'"><i class="icon icon-user"></i></a>';
+                            full_link += ' <a href="'+ auth_link +'" target="_blank" title="'+ _("modmonitor.auth_from_name") + record.get('username') +'"><i class="icon icon-user"></i></a>';
                         }
                         
                         
@@ -782,11 +781,11 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                     }
                 }
                 ,{
-                    header: 'Дата'
+                    header: _("modmonitor.date")
                     ,dataIndex: 'date'
                 }
                 ,{
-                    header: 'ID документа'
+                    header: _("modmonitor.resource_id")
                     ,dataIndex: 'resource_id'
                 }
                 ,{
@@ -794,7 +793,7 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                     ,dataIndex: 'ip'
                 }
                 ,{
-                    header: 'Пользователь'
+                    header: _("modmonitor.user_id")
                     ,dataIndex: 'user_id'
                     ,renderer: function(value, cell, record){
                         var username = record.get('username');
@@ -807,7 +806,7 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                     }
                 }
                 ,{
-                    header: 'Код ответа'
+                    header: _("modmonitor.http_status")
                     ,dataIndex: 'http_status'
                     ,renderer: function(value, cell, record){
                         
@@ -867,7 +866,7 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                     }
                 }
                 ,{
-                    header: 'php ошибка'
+                    header: _("modmonitor.php_error")
                     ,dataIndex: 'php_error'
                     ,editable: true
                     ,renderer: function(value, cell, record){
@@ -877,37 +876,37 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                             switch(value){
                                 
                                 case '1':
-                                    value = "E_ERROR";
+                                    value += " E_ERROR";
                                     cell.style = cell.style + ";color:red;";
                                     break;
                                 
                                 case '2':
-                                    value = "E_WARNING";
+                                    value += " E_WARNING";
                                     cell.style = cell.style + ";color:red;";
                                     break;
                                 
                                 case '4':
-                                    value = "E_PARSE";
+                                    value += " E_PARSE";
                                     cell.style = cell.style + ";color:red;";
                                     break;
                                 
                                 case '8':
-                                    value = "E_NOTICE";
+                                    value += " E_NOTICE";
                                     cell.style = cell.style + ";color:red;";
                                     break;
                                 
                                 case '16':
-                                    value = "E_CORE_ERROR";
+                                    value += " E_CORE_ERROR";
                                     cell.style = cell.style + ";color:red;";
                                     break;
                                 
                                 case '32':
-                                    value = "E_CORE_WARNING ";
+                                    value += " E_CORE_WARNING ";
                                     cell.style = cell.style + ";color:red;";
                                     break;
                                 
                                 case '64':
-                                    value = "E_COMPILE_ERROR ";
+                                    value += " E_COMPILE_ERROR ";
                                     cell.style = cell.style + ";color:red;";
                                     break;
                                     
@@ -923,7 +922,7 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                     }
                 }
                 ,{
-                    header: 'Время выполнения'
+                    header: _("modmonitor.time")
                     ,dataIndex: 'time'
                     ,renderer: function(value, cell, record){
                         
@@ -935,19 +934,19 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                     }
                 }
                 ,{
-                    header: 'Использовано памяти Мб'
+                    header: _("modmonitor.php_memory")
                     ,dataIndex: 'php_memory'
                 }
                 ,{
-                    header: 'Запросов к БД'
+                    header: _("modmonitor.db_queries")
                     ,dataIndex: 'db_queries'
                 }
                 ,{
-                    header: 'Время запросов к БД'
+                    header: _("modmonitor.db_queries_time")
                     ,dataIndex: 'db_queries_time'
                 }
                 ,{
-                    header: 'Из кеша'
+                    header: _("modmonitor.from_cache_1")
                     ,dataIndex: 'from_cache'
                     ,renderer: function(value, cell, record){
                         
@@ -1003,20 +1002,20 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                         var info = JSON.parse(record.get("php_error_info"));
                     }
                     catch(e){
-                        MODx.msg.alert("Ошибка", "Не удалось разобрать данные");
+                        MODx.msg.alert(_("MODx.lang.error"), _("modmonitor.unable_parse_data"));
                         return;
                     }
                     
                     
                     new MODx.Window({
-                        title: "Описание ошибки"
+                        title: _("modmonitor.err_descr")
                         ,width: 540
                         ,mode: 'local'
-                        ,html: "\
-                        <p><b>Ошибка: </b>"+ info.message +"</p>\
-                        <p><b>Файл: </b>"+ info.file +"</p>\
-                        <p><b>Строка: </b>"+ info.line +"</p>\
-                        "
+                        ,html: '\
+                        <p><b>'+ _("modmonitor.err_descr_msg") +': </b>'+ info.message +'</p>\
+                        <p><b>'+ _("modmonitor.err_descr_file") +': </b>'+ info.file +'</p>\
+                        <p><b>'+ _("modmonitor.err_descr_line") +': </b>'+ info.line +'</p>\
+                        '
                     })
                         .show();
                 }
@@ -1058,7 +1057,7 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
     
     ,onUpdateSuccess: function(response){
         if(!response.success){
-            MODx.msg.alert(response.message || 'Ошибка выполнения запроса');
+            MODx.msg.alert(response.message || _("modmonitor.err_request"));
             return false;
         }
         

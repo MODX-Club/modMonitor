@@ -4,6 +4,9 @@ class modModmonitorRequestsTruncateProcessor extends modObjectProcessor{
     
     public $permission = "modmonitor.truncate_data";
     
+    public function getLanguageTopics() {
+        return array("modmonitor:default");
+    }
     
     public function process(){
         
@@ -21,7 +24,8 @@ class modModmonitorRequestsTruncateProcessor extends modObjectProcessor{
             }
         }
         
-        return $this->success("Данные успешно очищены");
+        // $this->modx->lexicon($str);
+        return $this->success($this->modx->lexicon('modmonitor.clear_data_success'));
     }
     
 }

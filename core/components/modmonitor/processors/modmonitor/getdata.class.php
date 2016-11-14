@@ -8,6 +8,11 @@ abstract class modModmonitorGetdataProcessor extends modSiteWebGetdataProcessor{
     public $permission = "modmonitor";
     
     
+    public function getLanguageTopics() {
+        return array("modmonitor:default");
+    }
+    
+    
     public function outputArray(array $array, $count = false){
         
         $result = parent::outputArray($array, $count);

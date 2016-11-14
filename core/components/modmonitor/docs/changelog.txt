@@ -1,3 +1,8 @@
+modMonitor-2.4.2-beta
+================================
+- Added en localization
+
+
 modMonitor-2.4.1-beta
 ================================
 - Added fastFieldParser support

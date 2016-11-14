@@ -67,7 +67,7 @@ $settings[] = $setting;
 $setting = $modx->newObject('modSystemSetting');
 $setting->fromArray(array(
  'key' => 'modmonitor.exclude_contexts',
- 'value' => 'mgr',
+ 'value' => '',
  'xtype' => 'textfield',
  'namespace' => NAMESPACE_NAME,
  'area' => 'default',
