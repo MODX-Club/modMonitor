@@ -49,6 +49,18 @@ class modModmonitorRequestsGetdataProcessor extends modModmonitorGetdataProcesso
             $where['time:>=']    = $time;
         }
         
+        if($context = trim($this->getProperty("context"))){
+            if(
+                $ctx = $this->modx->getObject("modContext", $context)
+                AND $ctx->checkPolicy("load")
+            ){
+                $where['context_key']   = $context;
+            }
+            else{
+                $where[] = "1 = 0";
+            }
+        }
+        
         if($from_cache = (int)$this->getProperty("from_cache")){
             $where['from_cache']    = $from_cache == 1 ? 1: "";
         }

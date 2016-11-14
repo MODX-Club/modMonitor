@@ -398,7 +398,7 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
     getToolbar: function(){
 
         this.searchField = new Ext.form.TextField({
-            width: 300
+            width: 250
             ,enableKeyEvents: true
             ,name: 'query'
             ,emptyText: "Адрес или ID. % - все символы, _ - один"
@@ -431,7 +431,7 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
             enableKeyEvents: true
             ,name: 'time'
             ,emptyText: "Время"
-            // ,decimalPrecision: 2
+            ,width: 80
             ,listeners:{
 
                 // При изменении
@@ -460,16 +460,37 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
         });
         
         this.cacheSearchField = new MODx.combo.ComboBox({
-            boxLabel: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Кеш'
-            ,name: 'from_cache'
+            name: 'from_cache'
             ,mode: 'local'
             ,emptyText: "Кеш"
+            ,width: 90
             ,store: new Ext.data.SimpleStore({
                 fields: ['d','v']
                 ,data: [['Все', ''],['Из кеша','1'],['Не из кеша','2']]
             })
             ,displayField: 'd'
             ,valueField: 'v'
+            ,listeners:{
+                select: {
+                    fn: function(field, value){
+                        this.getStore().setBaseParam( field.name, field.getValue() );
+                        this.search();
+                    }
+                    ,scope: this
+                }
+            }
+            ,scope: this
+        });
+        
+        this.contextSearchField = new MODx.combo.Context({
+            name: 'context'
+            ,emptyText: "Контекст"
+            ,width: 110
+            ,baseParams: {
+                action: 'context/getlist'
+                ,sort: 'key'
+                ,dir: 'desc'
+            }
             ,listeners:{
                 select: {
                     fn: function(field, value){
@@ -514,6 +535,7 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                 ,this.timeSearchField
                 
                 ,this.cacheSearchField
+                ,this.contextSearchField
                 ,this.SearchButton
                 ,this.ClearButton
                 ,'->'
@@ -529,13 +551,16 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
     
     
     ,clear: function(){
+        
         this.searchField.setValue('');
         this.timeSearchField.setValue('');
         this.cacheSearchField.setValue('');
+        this.contextSearchField.setValue('');
         
         this.getStore().setBaseParam( this.searchField.name, '' );
         this.getStore().setBaseParam( this.timeSearchField.name, '' );
         this.getStore().setBaseParam( this.cacheSearchField.name, '' );
+        this.getStore().setBaseParam( this.contextSearchField, '' );
         
         // this.searchField.fireEvent('change', this.searchField);
         this.search();

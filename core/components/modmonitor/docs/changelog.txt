@@ -1,3 +1,9 @@
+modMonitor-2.2.1-beta
+================================
+- Added context filter
+- Minor bugfixes
+
+
 modMonitor-2.2.0-beta
 ================================
 - Added parents for request and items
