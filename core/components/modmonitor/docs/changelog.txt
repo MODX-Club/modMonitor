@@ -1,6 +1,12 @@
+modMonitor-2.4.0-beta
+================================
+- Added loging php errors
+
+
 modMonitor-2.3.0-beta
 ================================
 - Added HTTP response statuses
+
 
 modMonitor-2.2.1-beta
 ================================

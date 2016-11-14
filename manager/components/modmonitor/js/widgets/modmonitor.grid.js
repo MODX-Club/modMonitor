@@ -379,6 +379,8 @@ modMonitor.grid.Requests = function(config){
             ,'db_queries_time'
             ,'from_cache'
             ,'resource_url'
+            ,'php_error'
+            ,'php_error_info'
             ,'menu'
         ]
         ,paging: true
@@ -532,6 +534,37 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
             }
             ,scope: this
         });
+        
+        
+        this.phpErrorSearchField = new Ext.form.TextField({
+            width: 100
+            ,enableKeyEvents: true
+            ,name: 'php_error'
+            ,emptyText: "Код ошибки"
+            ,listeners:{
+
+                // При изменении
+                change: {
+                    fn: function(field, e){
+                        if(field.isDirty()){
+                            field.originalValue = field.getValue();
+                            this.getStore().setBaseParam( field.name, field.getValue() );
+                            this.search();
+                        }
+                    }
+                    ,scope: this
+                }
+                ,keyup: {
+                    fn: function(field, e){
+                        // Если нажали ENTERsearchField
+                        if(e.getKey() == e.ENTER){
+                            field.fireEvent('change', field, e);
+                        }
+                    }
+                    ,scope: this
+                }
+            }
+        });
 
         this.SearchButton = new Ext.Button({
             text: 'Найти'
@@ -567,6 +600,7 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                 ,this.cacheSearchField
                 ,this.contextSearchField
                 ,this.statusSearchField
+                ,this.phpErrorSearchField
                 ,this.SearchButton
                 ,this.ClearButton
                 ,'->'
@@ -583,17 +617,35 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
     
     ,clear: function(){
         
-        this.searchField.setValue('');
-        this.timeSearchField.setValue('');
-        this.cacheSearchField.setValue('');
-        this.contextSearchField.setValue('');
-        this.statusSearchField.setValue('');
+        var fields = [
+            this.searchField,
+            this.timeSearchField,
+            this.cacheSearchField,
+            this.contextSearchField,
+            this.statusSearchField,
+            this.phpErrorSearchField,
+        ];
         
-        this.getStore().setBaseParam( this.searchField.name, '' );
-        this.getStore().setBaseParam( this.timeSearchField.name, '' );
-        this.getStore().setBaseParam( this.cacheSearchField.name, '' );
-        this.getStore().setBaseParam( this.contextSearchField, '' );
-        this.getStore().setBaseParam( this.statusSearchField, '' );
+        for(var i in fields){
+            
+            var field = fields[i];
+            
+            if(typeof field != 'object'){
+                continue;
+            }
+            
+            field.setValue('');
+            field.originalValue = field.getValue('');
+            
+            this.getStore().setBaseParam(field.name, field.getValue(''));
+        }
+        
+        // this.getStore().setBaseParam( this.searchField.name, '' );
+        // this.getStore().setBaseParam( this.timeSearchField.name, '' );
+        // this.getStore().setBaseParam( this.cacheSearchField.name, '' );
+        // this.getStore().setBaseParam( this.contextSearchField.name, '' );
+        // this.getStore().setBaseParam( this.statusSearchField.name, '' );
+        // this.getStore().setBaseParam( this.phpErrorSearchField.name, '' );
         
         // this.searchField.fireEvent('change', this.searchField);
         this.search();
@@ -688,6 +740,7 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                 ,{
                     header: 'Адрес'
                     ,dataIndex: 'url'
+                    ,width: 300
                     ,renderer: function(value, cell, record){
                         
                         // value = value.replace(/^\/+/, "");
@@ -814,6 +867,62 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                     }
                 }
                 ,{
+                    header: 'php ошибка'
+                    ,dataIndex: 'php_error'
+                    ,editable: true
+                    ,renderer: function(value, cell, record){
+                        
+                        if(value != '0'){
+                            
+                            switch(value){
+                                
+                                case '1':
+                                    value = "E_ERROR";
+                                    cell.style = cell.style + ";color:red;";
+                                    break;
+                                
+                                case '2':
+                                    value = "E_WARNING";
+                                    cell.style = cell.style + ";color:red;";
+                                    break;
+                                
+                                case '4':
+                                    value = "E_PARSE";
+                                    cell.style = cell.style + ";color:red;";
+                                    break;
+                                
+                                case '8':
+                                    value = "E_NOTICE";
+                                    cell.style = cell.style + ";color:red;";
+                                    break;
+                                
+                                case '16':
+                                    value = "E_CORE_ERROR";
+                                    cell.style = cell.style + ";color:red;";
+                                    break;
+                                
+                                case '32':
+                                    value = "E_CORE_WARNING ";
+                                    cell.style = cell.style + ";color:red;";
+                                    break;
+                                
+                                case '64':
+                                    value = "E_COMPILE_ERROR ";
+                                    cell.style = cell.style + ";color:red;";
+                                    break;
+                                    
+                                default:
+                                    cell.style = cell.style + ";color:red;";
+                            }
+                        }
+                        else{
+                            value = '';
+                        }
+                        
+                        return value;
+                    }
+                }
+                ,{
                     header: 'Время выполнения'
                     ,dataIndex: 'time'
                     ,renderer: function(value, cell, record){
@@ -877,33 +986,64 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
             this.grid.mainGrid.__stopEditing = true;
         }
         
-        // console.log(this);
+        // console.log();
         // return;
         
         var fieldName = this.getDataIndex(colIndex);
         
         // console.log(fieldName);
         
-        // switch(fieldName){
-        //     case 'date':
-        //     case 'date_till':
-        //         // return new Ext.form.DateField({
-        //         //     // format: 'Y-m-d'
-        //         //     // ,value: '2016-05-06'
-        //         //     // value: '01/01/01'
-        //         //     // value: new Date()
-        //         // });
-        //         
-        //         return new Ext.grid.GridEditor(
-        //             new Ext.form.DateField({
-        //                 format: 'Y-m-d'
-        //                 // value: '2016-05-06'
-        //             })
-        //         );
-        //         
-        //         // o = 'date';
-        //         break;
-        // }
+        switch(fieldName){
+            
+            case "php_error":
+                
+                if(record.get(fieldName) != '0'){
+                    
+                    try{
+                        var info = JSON.parse(record.get("php_error_info"));
+                    }
+                    catch(e){
+                        MODx.msg.alert("Ошибка", "Не удалось разобрать данные");
+                        return;
+                    }
+                    
+                    
+                    new MODx.Window({
+                        title: "Описание ошибки"
+                        ,width: 540
+                        ,mode: 'local'
+                        ,html: "\
+                        <p><b>Ошибка: </b>"+ info.message +"</p>\
+                        <p><b>Файл: </b>"+ info.file +"</p>\
+                        <p><b>Строка: </b>"+ info.line +"</p>\
+                        "
+                    })
+                        .show();
+                }
+                
+                
+                return;
+                break;
+            
+            // case 'date':
+            // case 'date_till':
+            //     // return new Ext.form.DateField({
+            //     //     // format: 'Y-m-d'
+            //     //     // ,value: '2016-05-06'
+            //     //     // value: '01/01/01'
+            //     //     // value: new Date()
+            //     // });
+            //     
+            //     return new Ext.grid.GridEditor(
+            //         new Ext.form.DateField({
+            //             format: 'Y-m-d'
+            //             // value: '2016-05-06'
+            //         })
+            //     );
+            //     
+            //     // o = 'date';
+            //     break;
+        }
         
         if(!o){
             o = MODx.load({

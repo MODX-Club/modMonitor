@@ -73,6 +73,27 @@ class modModmonitorRequestsGetdataProcessor extends modModmonitorGetdataProcesso
             $where["http_status:{$cond}"] = "{$status}%";
         }
         
+        if($php_error = trim($this->getProperty("php_error"))){
+            
+            if(preg_match("/^([\<\>\=]+)([0-9]+)$/", $php_error, $match)){
+                $cond = $match[1];
+                $php_error = (int)$match[2];
+                $c->where(array(
+                    "php_error:!="  => 0,
+                ));
+            }
+            else if($php_error == "*"){
+                $cond = "!=";
+                $php_error = "0";
+            }
+            else{
+                $cond = "=";
+                $php_error = (int)$php_error;
+            }
+            
+            $where["php_error:{$cond}"] = "{$php_error}";
+        }
+        
         if($where){
             $c->where($where);
         }

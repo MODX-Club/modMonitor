@@ -23,6 +23,11 @@ if ($object->xpdo) {
       $manager->addField('modMonitorRequest', 'parent');
       $manager->addIndex('modMonitorRequest', 'parent');
 
+      $manager->addField('modMonitorRequest', 'php_error');
+      $manager->addIndex('modMonitorRequest', 'php_error');
+
+      $manager->addField('modMonitorRequest', 'php_error_info');
+
       $manager->addField('modMonitorRequestItem', 'parent');
       $manager->addIndex('modMonitorRequestItem', 'parent');
 

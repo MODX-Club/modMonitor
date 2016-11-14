@@ -23,6 +23,8 @@ $xpdo_meta_map['modMonitorRequest']= array (
     'php_memory' => 0,
     'db_queries' => 0,
     'db_queries_time' => 0,
+    'php_error' => 0,
+    'php_error_info' => '',
   ),
   'fieldMeta' => 
   array (
@@ -165,6 +167,22 @@ $xpdo_meta_map['modMonitorRequest']= array (
       'null' => false,
       'default' => 0,
     ),
+    'php_error' => 
+    array (
+      'dbtype' => 'mediumint',
+      'attributes' => 'unsigned',
+      'phptype' => 'integer',
+      'null' => false,
+      'default' => 0,
+      'index' => 'index',
+    ),
+    'php_error_info' => 
+    array (
+      'dbtype' => 'text',
+      'phptype' => 'json',
+      'null' => false,
+      'default' => '',
+    ),
   ),
   'indexes' => 
   array (
@@ -269,6 +287,22 @@ $xpdo_meta_map['modMonitorRequest']= array (
       'columns' => 
       array (
         'ip' => 
+        array (
+          'length' => '',
+          'collation' => 'A',
+          'null' => false,
+        ),
+      ),
+    ),
+    'php_error' => 
+    array (
+      'alias' => 'php_error',
+      'primary' => false,
+      'unique' => false,
+      'type' => 'BTREE',
+      'columns' => 
+      array (
+        'php_error' => 
         array (
           'length' => '',
           'collation' => 'A',

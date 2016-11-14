@@ -112,6 +112,8 @@ class modMonitor{
             unset($this->items);
         }
         
+        # print_r("wfwef");
+        
         # print '<pre>';
         # print_r($this->request->toArray());
         # exit;
@@ -150,16 +152,28 @@ class modMonitor{
         $this->setRequestValue('user_id', $modx->user->id);
         $this->setRequestValue('from_cache', !$modx->resourceGenerated);
         
-        if(
-            $min_time_for_save = (float)$this->modx->getOption("modmonitor.min_time_for_save", null)
-            AND $min_time_for_save > $this->request->time
-        ){
-            return;
-        }
         
         $this->request->fromArray(array(
             "http_status"    => http_response_code(),
         ));
+        
+        $errors = error_get_last();
+        
+        if(
+            $min_time_for_save = (float)$this->modx->getOption("modmonitor.min_time_for_save", null)
+            AND $min_time_for_save > $this->request->time
+            AND $this->request->http_status == 200
+            AND !$errors
+        ){
+            return;
+        }
+        
+        if($errors){
+            $this->request->fromArray(array(
+                "php_error"    => $errors['type'],
+                "php_error_info"    => $errors,
+            ));
+        }
         
         $this->request->save();
         
@@ -197,7 +211,7 @@ class modMonitor{
         
         if($this->request){
             
-            if(!$this->item){
+            if(empty($this->item)){
                 $this->items[] = $object;
             }
             else{
