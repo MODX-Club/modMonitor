@@ -157,6 +157,10 @@ class modMonitor{
             return;
         }
         
+        $this->request->fromArray(array(
+            "http_status"    => http_response_code(),
+        ));
+        
         $this->request->save();
         
         # $this->modx->resource->_output = '';

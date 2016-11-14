@@ -1,3 +1,7 @@
+modMonitor-2.3.0-beta
+================================
+- Added HTTP response statuses
+
 modMonitor-2.2.1-beta
 ================================
 - Added context filter

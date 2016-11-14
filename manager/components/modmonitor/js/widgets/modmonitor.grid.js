@@ -427,6 +427,36 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
             }
         });
 
+        this.statusSearchField = new Ext.form.TextField({
+            width: 100
+            ,enableKeyEvents: true
+            ,name: 'status'
+            ,emptyText: "Код ответа"
+            ,listeners:{
+
+                // При изменении
+                change: {
+                    fn: function(field, e){
+                        if(field.isDirty()){
+                            field.originalValue = field.getValue();
+                            this.getStore().setBaseParam( field.name, field.getValue() );
+                            this.search();
+                        }
+                    }
+                    ,scope: this
+                }
+                ,keyup: {
+                    fn: function(field, e){
+                        // Если нажали ENTERsearchField
+                        if(e.getKey() == e.ENTER){
+                            field.fireEvent('change', field, e);
+                        }
+                    }
+                    ,scope: this
+                }
+            }
+        });
+
         this.timeSearchField = new Ext.form.NumberField({
             enableKeyEvents: true
             ,name: 'time'
@@ -536,6 +566,7 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                 
                 ,this.cacheSearchField
                 ,this.contextSearchField
+                ,this.statusSearchField
                 ,this.SearchButton
                 ,this.ClearButton
                 ,'->'
@@ -556,11 +587,13 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
         this.timeSearchField.setValue('');
         this.cacheSearchField.setValue('');
         this.contextSearchField.setValue('');
+        this.statusSearchField.setValue('');
         
         this.getStore().setBaseParam( this.searchField.name, '' );
         this.getStore().setBaseParam( this.timeSearchField.name, '' );
         this.getStore().setBaseParam( this.cacheSearchField.name, '' );
         this.getStore().setBaseParam( this.contextSearchField, '' );
+        this.getStore().setBaseParam( this.statusSearchField, '' );
         
         // this.searchField.fireEvent('change', this.searchField);
         this.search();
@@ -656,18 +689,43 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                     header: 'Адрес'
                     ,dataIndex: 'url'
                     ,renderer: function(value, cell, record){
-                        var resource_url = record.get('resource_url');
-                        var user_id = record.get('user_id');
                         
-                        if(resource_url !== '' && resource_url !== null){
-                            value = '<a href="'+ resource_url +'" target="_blank" style="display:inline-block;padding-right: 10px;">'+ value +'</a>';
-                        }
+                        // value = value.replace(/^\/+/, "");
+                        
+                        var http_status = record.get("http_status");
+                        var user_id = record.get('user_id');
+                        var link = record.get("site_url");
+                        
+                        var full_link;
+                        
+                        // if(http_status == '200'){
+                            link += value.replace(/^\/+/, "");
+                        // }
+                        // else{
+                        //     link += value;
+                        // }
+                        
+                        full_link = '<a href="'+ link +'" target="_blank" style="display:inline-block;padding-right: 10px;">'+ value +'</a>';
                         
                         if(user_id !== '' && user_id !== null && user_id != '0' && user_id != MODx.user.id){
-                            value = value + ' <a href="'+ resource_url +'?switch_user='+ user_id +'" target="_blank" title="Авторизоваться от имени '+ record.get('username') +'"><i class="icon icon-user"></i></a>';
+                            var auth_link = link + (/\?/.test(link) ? "&" : "?") + 'switch_user='+ user_id;
+                            
+                            full_link += ' <a href="'+ auth_link +'" target="_blank" title="Авторизоваться от имени '+ record.get('username') +'"><i class="icon icon-user"></i></a>';
                         }
                         
-                        return value;
+                        
+                        // var resource_url = record.get('resource_url');
+                        // var user_id = record.get('user_id');
+                        // 
+                        // if(resource_url !== '' && resource_url !== null){
+                            // full_link = '<a href="'+ link +'" target="_blank" style="display:inline-block;padding-right: 10px;">'+ value +'</a>';
+                        // }
+                        
+                        // if(user_id !== '' && user_id !== null && user_id != '0' && user_id != MODx.user.id){
+                            // full_link = value + ' <a href="'+ resource_url +'?switch_user='+ user_id +'" target="_blank" title="Авторизоваться от имени '+ record.get('username') +'"><i class="icon icon-user"></i></a>';
+                        // }
+                        
+                        return full_link;
                     }
                 }
                 ,{
@@ -696,15 +754,60 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                     }
                 }
                 ,{
-                    header: 'Статус запроса'
+                    header: 'Код ответа'
                     ,dataIndex: 'http_status'
                     ,renderer: function(value, cell, record){
                         
-                        if(value == 200){
-                            cell.style = cell.style + ";color:green;";
-                        }
-                        else{
-                            cell.style = cell.style + ";color:red;";
+                        switch(value){
+                            
+                            case '200':
+                                cell.style = cell.style + ";color:green;";
+                                break;
+                            
+                            case '300':
+                                value = value + ' Multiple Choices';
+                                cell.style = cell.style + ";color:#FF7F50;";
+                                break;
+                                
+                            case '301':
+                                value = value + ' Moved Permanently';
+                                cell.style = cell.style + ";color:#FF7F50;";
+                                break;
+                                
+                            case '302':
+                                value = value + ' Moved Temporarily/Found';
+                                cell.style = cell.style + ";color:#FF7F50;";
+                                break;
+                                
+                            
+                            case '401':
+                                value = value + ' Not Authorized';
+                                cell.style = cell.style + ";color:red;";
+                                break;
+                            
+                            case '402':
+                                value = value + ' Payment Required';
+                                cell.style = cell.style + ";color:red;";
+                                break;
+                            
+                            case '403':
+                                value = value + ' Forbidden';
+                                cell.style = cell.style + ";color:red;";
+                                break;
+                            
+                            case '404':
+                                value = value + ' Not Found';
+                                cell.style = cell.style + ";color:red;";
+                                break;
+                            
+                            case '405':
+                                value = value + ' Method Not Allowed';
+                                cell.style = cell.style + ";color:red;";
+                                break;
+                                
+                            default:
+                                cell.style = cell.style + ";color:red;";
+                                
                         }
                         
                         return value;
