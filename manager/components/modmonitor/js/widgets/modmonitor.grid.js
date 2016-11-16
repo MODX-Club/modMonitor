@@ -462,7 +462,7 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
         this.timeSearchField = new Ext.form.NumberField({
             enableKeyEvents: true
             ,name: 'time'
-            ,emptyText: _("modmonitor.time")
+            ,emptyText: _("modmonitor.runtime")
             ,width: 110
             ,listeners:{
 
@@ -1007,7 +1007,7 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                     }
                     
                     
-                    new MODx.Window({
+                    this.ErrWindow = new MODx.Window({
                         title: _("modmonitor.err_descr")
                         ,width: 540
                         ,mode: 'local'
@@ -1016,8 +1016,16 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                         <p><b>'+ _("modmonitor.err_descr_file") +': </b>'+ info.file +'</p>\
                         <p><b>'+ _("modmonitor.err_descr_line") +': </b>'+ info.line +'</p>\
                         '
-                    })
-                        .show();
+                        ,buttons: [{
+                            text: _('close')
+                            ,scope: this
+                            ,handler: function() { 
+                                this.ErrWindow.close(); 
+                            }
+                        }]
+                    });
+                    
+                    this.ErrWindow.show();
                 }
                 
                 

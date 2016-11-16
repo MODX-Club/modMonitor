@@ -21,6 +21,10 @@ switch($modx->event->name){
             "shutdown"
         ));
         
+        if(!$modx->context->getOption("InitedWithModMonitor", null)){
+            $modx->context->prepare(true);
+        }
+        
         if(!$new_parser_class = $modx->getOption('modmonitor.parser_class', null)){
             
             $parser_class = $modx->getOption('parser_class', null, 'modParser');
@@ -94,5 +98,67 @@ switch($modx->event->name){
         
         
         break;
+        
+    # case 'OnCacheUpdate':
+    #     
+    #     # print_r($paths['context_settings']['contexts']);
+    #     # print_r($paths['context_settings']['contexts']);
+    #     
+    #     # if(!empty($paths['context_settings']['contexts'])){
+    #     #     
+    #     #     
+    #     # }
+    #     
+    #     # print_r($results);
+    #     
+    #     # print_r($results['context_settings']['web']);
+    #     
+    #     # $modx->setLogTarget("FILE");
+    #     # $modx->log(1, print_r($scriptProperties, 1));
+    #     
+    #     
+    #     if(!empty($results['context_settings'])){
+    #         foreach($results['context_settings'] as $key => $status){
+    #             
+    #         
+    #             if($status !== true){
+    #                 continue;
+    #             }
+    #             
+    #             # print_r($results['context_settings']);
+    #             
+    #             $cache_key = "{$key}/context";
+    #     
+    #             # print $key;
+    #             
+    #             
+    #             // $cache = $modx->cacheManager->get("context_settings/". $key. "/context");
+    #             if($cache = $modx->cacheManager->get($cache_key, array(
+    #                 xPDO::OPT_CACHE_KEY => "context_settings",
+    #             ))){
+    #                 
+    #                 // $cache = $modx->cacheManager->getCacheKey();
+    #                 // print xPDO::OPT_CACHE_KEY;
+    #                 
+    #                 
+    #                 foreach($cache['pluginCache'] as & $plugin){
+    #                     $plugin['plugincode'] = "
+    #                 /*
+    #                     modMonitor plugin
+    #                 */    
+    #                 
+    #                 ". $plugin['plugincode'];
+    #                 }
+    #                 
+    #                 $modx->cacheManager->set($cache_key, $cache, 0, array(
+    #                     xPDO::OPT_CACHE_KEY => "context_settings",
+    #                 ));
+    #             }
+    #         }
+    #     }
+    #     
+    #     
+    #     
+    #     break;
         
 }

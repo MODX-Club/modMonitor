@@ -198,7 +198,37 @@ class modMonitor{
     }
     
     
-    public function addItem($object){
+    # public function addItem($object){
+    #     # $data = array_merge();
+    #     $added = false;
+    #     
+    #     if(!is_object($object)){
+    #         $object = $this->xpdo->newObject('modMonitorRequestItem', $object);
+    #     }
+    #     else if(!($object instanceof modMonitorRequestItem)){
+    #         return $added;
+    #     }
+    #     
+    #     if($this->request){
+    #         
+    #         if(empty($this->item)){
+    #             $this->items[] = $object;
+    #         }
+    #         else{
+    #             $children = $this->item->Children;
+    #             $children[] = $object;
+    #             $this->item->Children = $children;
+    #         }
+    #         
+    #         $this->item = $object;
+    #         
+    #         $added = true;
+    #     }
+    #     
+    #     return $added;
+    # }
+    
+    public function addItem($object, $replaceItem = true, $addAsChild = true){
         # $data = array_merge();
         $added = false;
         
@@ -211,7 +241,7 @@ class modMonitor{
         
         if($this->request){
             
-            if(empty($this->item)){
+            if(empty($this->item) || !$addAsChild){
                 $this->items[] = $object;
             }
             else{
@@ -220,7 +250,9 @@ class modMonitor{
                 $this->item->Children = $children;
             }
             
-            $this->item = $object;
+            if($replaceItem){
+                $this->item = $object;
+            }
             
             $added = true;
         }

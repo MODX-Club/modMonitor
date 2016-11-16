@@ -60,6 +60,8 @@ class modModmonitorRequestsTreeGetdataProcessor extends modModmonitorGetdataProc
         $params = array(
             # "request_id"    => $request_id,
             "limit"     => 0,
+            "sort"      => "id",
+            "dir"       => "ASC",
         );
         
         if(
@@ -101,11 +103,11 @@ class modModmonitorRequestsTreeGetdataProcessor extends modModmonitorGetdataProc
             foreach($objects as & $object){
                 # $object['text'] = "({$object['id']}) {$object['type']} - {$object['name']}. Parent: {$object['parent']}. Time: {$object['time']} Request: {$object['request_id']}";
                 
-                $Properties = $object['properties'] ? "Properties: {$object['properties']}" : "";
-                
-                $object['text'] = "{$object['name']} Time: {$object['time']} {$Properties}";
+                $properties_str = $object['properties'] ? "Properties: {$object['properties']}" : "";
                 
                 $iconCls = 'icon';
+                
+                $text = $object['name'];
                 
                 switch($object['type']){
                     case 'modChunk':
@@ -118,12 +120,22 @@ class modModmonitorRequestsTreeGetdataProcessor extends modModmonitorGetdataProc
                         
                         break;
                         
+                    case 'modPlugin':
+                        $iconCls .= ' icon-cogs';
+                        
+                        $properties = json_decode($object['properties'], 1);
+                        
+                        $text .= ($properties['event'] ? " [{$properties['event']}] "  : "");
+                        break;
+                        
                     default: 
                         $iconCls .= ' tree-resource';
                 }
                 
                 
                 
+                
+                $object['text'] = "({$object['id']}) {$text} Time: {$object['time']} {$properties_str}";
                 
                 $object['iconCls'] = $iconCls;
                 
