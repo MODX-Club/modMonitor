@@ -55,8 +55,9 @@ Ext.extend(modMonitor.grid.RequestItems, MODx.grid.Grid,{
 
 
     _loadColumnModel: function(){
+        
         // console.log(this);
-        // console.log(this.store);
+        
         this.cm = new Ext.grid.ColumnModel({
             grid: this
             ,
@@ -65,55 +66,28 @@ Ext.extend(modMonitor.grid.RequestItems, MODx.grid.Grid,{
                 ,sortable: true
                 ,editable: false
             },
-            columns: [
+            columns: this.config.columns || [
                 {
                     header: 'ID'
                     ,dataIndex: 'id'
                     ,editable: false
-                    // ,hidden: true
                 }
                 ,{
                     header: _("modmonitor.parent")
                     ,dataIndex: 'parent'
-                    // ,hidden: true
-                    // ,editor: 'date'
-                    // ,renderer: function(value, cell, record){
-                    //     
-                    //     if(value > 0.2){
-                    //         cell.style = cell.style + ";color:red;";
-                    //     }
-                    //     
-                    //     return value;
-                    // }
                 }
                 ,{
                     header: _("modmonitor.request_id")
                     ,dataIndex: 'request_id'
                     ,editable: false
-                    // ,hidden: true
                 }
-                // ,{
-                //     header: 'Услуга'
-                //     ,dataIndex: 'service_id'
-                //     // ,hidden: true
-                //     ,renderer: function(value, cell, record){
-                //         
-                //         value = record.get("service_name");
-                //         
-                //         return value;
-                //     }
-                // }
                 ,{
                     header: _("modmonitor.element")
                     ,dataIndex: 'type'
-                    // ,hidden: true
-                    // ,editor: 'date'
                 }
                 ,{
                     header: _("modmonitor.name")
                     ,dataIndex: 'name'
-                    // ,hidden: true
-                    // ,editor: 'date'
                     ,renderer: function(value, cell, record){
                         var total = record.get('total');
                         
@@ -131,8 +105,6 @@ Ext.extend(modMonitor.grid.RequestItems, MODx.grid.Grid,{
                 ,{
                     header: _("modmonitor.time")
                     ,dataIndex: 'time'
-                    // ,hidden: true
-                    // ,editor: 'date'
                     ,renderer: function(value, cell, record){
                         
                         if(value > 0.2){
@@ -145,57 +117,15 @@ Ext.extend(modMonitor.grid.RequestItems, MODx.grid.Grid,{
                 ,{
                     header: _("modmonitor.db_queries")
                     ,dataIndex: 'db_queries'
-                    // ,hidden: true
-                    // ,editor: 'date'
                 }
                 ,{
                     header: _("modmonitor.db_queries_time")
                     ,dataIndex: 'db_queries_time'
-                    // ,hidden: true
-                    // ,editor: 'date'
                 }
                 ,{
                     header: _("modmonitor.php_memory")
                     ,dataIndex: 'php_memory'
-                    // ,hidden: true
-                    // ,editor: 'date'
                 }
-                // ,{
-                //     header: 'Total'
-                //     ,dataIndex: 'total'
-                //     // ,hidden: true
-                //     // ,editor: 'date'
-                // }
-                // ,{
-                //     header: 'Действует До'
-                //     ,dataIndex: 'date_till'
-                //     // ,editor: {
-                //     //     xtype: 'datepicker'
-                //     // }
-                //     // ,hidden: true
-                // }
-                // ,{
-                //     header: 'Активен'
-                //     ,dataIndex: 'active'
-                //     ,editor: {
-                //         xtype: 'combo-boolean'
-                //     }
-                //     ,renderer: function(value, cell, record){
-                //         
-                //         if(value == '1' || value == 'true'){
-                //             cell.style = 'color:green;';
-                //             // value = 'Да';
-                //             value = '<i class="icon icon-check"></i>';
-                //         }
-                //         else if(value == '' || value == 'false'){
-                //             cell.style = 'color:red;';
-                //             value = '<i class="icon icon-close"></i>';
-                //         }
-                //         
-                //         return value;
-                //     }
-                //     // ,hidden: true
-                // }
             ]
             ,getCellEditor: this.getCellEditor
         });
@@ -343,6 +273,77 @@ Ext.extend(modMonitor.grid.RequestItemsExtended, modMonitor.grid.RequestItems,{
 Ext.reg('modmonitor-grid-requestitems-extended',modMonitor.grid.RequestItemsExtended);
 
 
+/*
+    Модели колонок
+*/
+
+
+
+modMonitor.grid.UrlColumn = function(config){
+
+    Ext.applyIf(config, {
+        header: _("modmonitor.url")
+        ,dataIndex: 'url'
+        ,width: 300
+        ,renderer: function(value, cell, record){
+            
+            // value = value.replace(/^\/+/, "");
+            
+            var http_status = record.get("http_status");
+            var user_id = record.get('user_id');
+            var link = record.get("site_url");
+            
+            var full_link;
+            
+            link += value.replace(/^\/+/, "");
+            
+            full_link = '<a href="'+ link +'" target="_blank" style="display:inline-block;padding-right: 10px;">'+ value +'</a>';
+            
+            if(user_id !== '' && user_id !== null && user_id != '0' && user_id != MODx.user.id){
+                var auth_link = link + (/\?/.test(link) ? "&" : "?") + 'switch_user='+ user_id;
+                
+                full_link += ' <a href="'+ auth_link +'" target="_blank" title="'+ _("modmonitor.auth_from_name") + record.get('username') +'"><i class="icon icon-user"></i></a>';
+            }
+            
+            
+            return full_link;
+        }
+    });
+
+    modMonitor.grid.UrlColumn.superclass.constructor.call(this,config);
+};
+
+Ext.extend(modMonitor.grid.UrlColumn, Ext.grid.Column,{});
+
+
+Ext.grid.Column.types['modmonitor-grid-urlcolumn'] = modMonitor.grid.UrlColumn;
+
+
+
+
+modMonitor.grid.UserIdColumn = function(config){
+
+    Ext.applyIf(config, {
+        header: _("modmonitor.user_id")
+        ,dataIndex: 'user_id'
+        ,renderer: function(value, cell, record){
+            var username = record.get('username');
+            
+            if(username !== '' && username !== null){
+                value = username + ' (' + value + ')';
+            }
+            
+            return value;
+        }
+    });
+
+    modMonitor.grid.UserIdColumn.superclass.constructor.call(this,config);
+};
+
+Ext.extend(modMonitor.grid.UserIdColumn, Ext.grid.Column,{});
+
+
+Ext.grid.Column.types['modmonitor-grid-useridcolumn'] = modMonitor.grid.UserIdColumn;
 
 /*
     Грид запросов с деталями по запросам
@@ -361,7 +362,7 @@ modMonitor.grid.Requests = function(config){
             ,format: 'grid'
         }
         ,remoteSort: true
-        ,fields: [
+        ,fields: config.fields || [
             'id'
             ,'parent'
             ,'url'
@@ -709,7 +710,7 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
 
     ,_loadColumnModel: function(){
         
-        // console.log(this.expander);
+        console.log(this);
         
         this.cm = new Ext.grid.ColumnModel({
             grid: this
@@ -719,7 +720,7 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                 ,sortable: true
                 ,editable: false
             },
-            columns: [
+            columns: this.config.columns || [
                 this.expander
                 ,{
                     header: 'ID'
@@ -727,6 +728,8 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                     ,editable: false
                     // ,hidden: true
                 }
+                
+                // 
                 ,{
                     header: _("modmonitor.parent")
                     ,dataIndex: 'parent'
@@ -736,50 +739,43 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                     header: _("modmonitor.context_key")
                     ,dataIndex: 'context_key'
                 }
+                // , new Ext.grid.Column({
+                //     header: "sdfs"
+                // })
+                
+                // 
                 ,{
-                    header: _("modmonitor.url")
-                    ,dataIndex: 'url'
-                    ,width: 300
-                    ,renderer: function(value, cell, record){
-                        
-                        // value = value.replace(/^\/+/, "");
-                        
-                        var http_status = record.get("http_status");
-                        var user_id = record.get('user_id');
-                        var link = record.get("site_url");
-                        
-                        var full_link;
-                        
-                        // if(http_status == '200'){
-                            link += value.replace(/^\/+/, "");
-                        // }
-                        // else{
-                        //     link += value;
-                        // }
-                        
-                        full_link = '<a href="'+ link +'" target="_blank" style="display:inline-block;padding-right: 10px;">'+ value +'</a>';
-                        
-                        if(user_id !== '' && user_id !== null && user_id != '0' && user_id != MODx.user.id){
-                            var auth_link = link + (/\?/.test(link) ? "&" : "?") + 'switch_user='+ user_id;
-                            
-                            full_link += ' <a href="'+ auth_link +'" target="_blank" title="'+ _("modmonitor.auth_from_name") + record.get('username') +'"><i class="icon icon-user"></i></a>';
-                        }
-                        
-                        
-                        // var resource_url = record.get('resource_url');
-                        // var user_id = record.get('user_id');
-                        // 
-                        // if(resource_url !== '' && resource_url !== null){
-                            // full_link = '<a href="'+ link +'" target="_blank" style="display:inline-block;padding-right: 10px;">'+ value +'</a>';
-                        // }
-                        
-                        // if(user_id !== '' && user_id !== null && user_id != '0' && user_id != MODx.user.id){
-                            // full_link = value + ' <a href="'+ resource_url +'?switch_user='+ user_id +'" target="_blank" title="Авторизоваться от имени '+ record.get('username') +'"><i class="icon icon-user"></i></a>';
-                        // }
-                        
-                        return full_link;
-                    }
+                    xtype: "modmonitor-grid-urlcolumn"
                 }
+                // ,{
+                    // xtype: 'modmonitor-grid-urlcolumn'
+                    // header: _("modmonitor.url")
+                    // ,dataIndex: 'url'
+                    // ,width: 300
+                    // ,renderer: function(value, cell, record){
+                    //     
+                    //     // value = value.replace(/^\/+/, "");
+                    //     
+                    //     var http_status = record.get("http_status");
+                    //     var user_id = record.get('user_id');
+                    //     var link = record.get("site_url");
+                    //     
+                    //     var full_link;
+                    //     
+                    //     link += value.replace(/^\/+/, "");
+                    //     
+                    //     full_link = '<a href="'+ link +'" target="_blank" style="display:inline-block;padding-right: 10px;">'+ value +'</a>';
+                    //     
+                    //     if(user_id !== '' && user_id !== null && user_id != '0' && user_id != MODx.user.id){
+                    //         var auth_link = link + (/\?/.test(link) ? "&" : "?") + 'switch_user='+ user_id;
+                    //         
+                    //         full_link += ' <a href="'+ auth_link +'" target="_blank" title="'+ _("modmonitor.auth_from_name") + record.get('username') +'"><i class="icon icon-user"></i></a>';
+                    //     }
+                    //     
+                    //     
+                    //     return full_link;
+                    // }
+                // }
                 ,{
                     header: _("modmonitor.date")
                     ,dataIndex: 'date'
@@ -792,19 +788,24 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                     header: 'IP'
                     ,dataIndex: 'ip'
                 }
+                
+                // 
                 ,{
-                    header: _("modmonitor.user_id")
-                    ,dataIndex: 'user_id'
-                    ,renderer: function(value, cell, record){
-                        var username = record.get('username');
-                        
-                        if(username !== '' && username !== null){
-                            value = username + ' (' + value + ')';
-                        }
-                        
-                        return value;
-                    }
+                    xtype: "modmonitor-grid-useridcolumn"
                 }
+                // ,{
+                //     header: _("modmonitor.user_id")
+                //     ,dataIndex: 'user_id'
+                //     ,renderer: function(value, cell, record){
+                //         var username = record.get('username');
+                //         
+                //         if(username !== '' && username !== null){
+                //             value = username + ' (' + value + ')';
+                //         }
+                //         
+                //         return value;
+                //     }
+                // }
                 ,{
                     header: _("modmonitor.http_status")
                     ,dataIndex: 'http_status'

@@ -1,3 +1,14 @@
+modMonitor-2.6.0-beta
+================================
+- Added setting modmonitor.collect_plugins_info
+- 
+
+
+modMonitor-2.5.0-beta
+================================
+- Added plugin statistic collection
+
+
 modMonitor-2.4.2-beta
 ================================
 - Added en localization

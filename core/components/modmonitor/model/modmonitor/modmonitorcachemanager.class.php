@@ -10,7 +10,8 @@ class modMonitorCacheManager extends modCacheManager{
         $results['config']['InitedWithModMonitor'] = true;
         
         if(
-            !empty($results['pluginCache'])
+            $this->xpdo->getOption("modmonitor.collect_plugins_info", null) == 1
+            AND !empty($results['pluginCache'])
             AND $obj = $this->modx->getObject('modContext', $key, true)
             AND (is_object($obj) && $obj instanceof modContext && $obj->get('key'))
         ){

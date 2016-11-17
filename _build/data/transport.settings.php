@@ -88,5 +88,18 @@ $setting->fromArray(array(
 $settings[] = $setting;
 
 
+
+$setting = $modx->newObject('modSystemSetting');
+$setting->fromArray(array(
+ 'key' => 'modmonitor.collect_plugins_info',
+ 'value' => 1,
+ 'xtype' => 'combo-boolean',
+ 'namespace' => NAMESPACE_NAME,
+ 'area' => 'default',
+),'',true,true);
+
+$settings[] = $setting;
+
+
 unset($setting,$setting_name);
 return $settings;
