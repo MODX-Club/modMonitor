@@ -56,7 +56,7 @@ class ModmonitorControllersMgrIndexManagerController extends modExtraManagerCont
         
         $this->addJavascript($this->config['assets_url'].'js/modmonitor.js');
         $this->addJavascript($this->config['assets_url'].'js/widgets/modmonitor.tree.js');
-        $this->addJavascript($this->config['assets_url'].'js/widgets/modmonitor.grid.js');
+        $this->addJavascript($this->config['assets_url'].'js/widgets/modmonitor.grid.js?v=2.5');
         $this->addJavascript($this->config['assets_url'].'js/widgets/modmonitor.panel.js');
         
         $this->addHtml('<script type="text/javascript">

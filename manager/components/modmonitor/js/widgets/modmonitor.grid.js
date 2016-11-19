@@ -345,6 +345,207 @@ Ext.extend(modMonitor.grid.UserIdColumn, Ext.grid.Column,{});
 
 Ext.grid.Column.types['modmonitor-grid-useridcolumn'] = modMonitor.grid.UserIdColumn;
 
+
+
+
+
+
+modMonitor.grid.HttpStatusColumn = function(config){
+
+    Ext.applyIf(config, {
+        header: _("modmonitor.http_status")
+        ,dataIndex: 'http_status'
+        ,renderer: function(value, cell, record){
+            
+            switch(value){
+                
+                case '200':
+                    cell.style = cell.style + ";color:green;";
+                    break;
+                
+                case '300':
+                    value = value + ' Multiple Choices';
+                    cell.style = cell.style + ";color:#FF7F50;";
+                    break;
+                    
+                case '301':
+                    value = value + ' Moved Permanently';
+                    cell.style = cell.style + ";color:#FF7F50;";
+                    break;
+                    
+                case '302':
+                    value = value + ' Moved Temporarily/Found';
+                    cell.style = cell.style + ";color:#FF7F50;";
+                    break;
+                    
+                
+                case '401':
+                    value = value + ' Not Authorized';
+                    cell.style = cell.style + ";color:red;";
+                    break;
+                
+                case '402':
+                    value = value + ' Payment Required';
+                    cell.style = cell.style + ";color:red;";
+                    break;
+                
+                case '403':
+                    value = value + ' Forbidden';
+                    cell.style = cell.style + ";color:red;";
+                    break;
+                
+                case '404':
+                    value = value + ' Not Found';
+                    cell.style = cell.style + ";color:red;";
+                    break;
+                
+                case '405':
+                    value = value + ' Method Not Allowed';
+                    cell.style = cell.style + ";color:red;";
+                    break;
+                    
+                default:
+                    cell.style = cell.style + ";color:red;";
+                    
+            }
+            
+            return value;
+        }
+    });
+
+    modMonitor.grid.HttpStatusColumn.superclass.constructor.call(this,config);
+};
+
+Ext.extend(modMonitor.grid.HttpStatusColumn, Ext.grid.Column,{});
+
+
+Ext.grid.Column.types['modmonitor-grid-httpstatuscolumn'] = modMonitor.grid.HttpStatusColumn;
+
+
+
+modMonitor.grid.PhpErrorColumn = function(config){
+
+    Ext.applyIf(config, {
+        header: _("modmonitor.php_error")
+        ,dataIndex: 'php_error'
+        ,renderer: function(value, cell, record){
+            
+            if(value != '0'){
+                
+                switch(value){
+                    
+                    case '1':
+                        value += " E_ERROR";
+                        cell.style = cell.style + ";color:red;";
+                        break;
+                    
+                    case '2':
+                        value += " E_WARNING";
+                        cell.style = cell.style + ";color:red;";
+                        break;
+                    
+                    case '4':
+                        value += " E_PARSE";
+                        cell.style = cell.style + ";color:red;";
+                        break;
+                    
+                    case '8':
+                        value += " E_NOTICE";
+                        cell.style = cell.style + ";color:red;";
+                        break;
+                    
+                    case '16':
+                        value += " E_CORE_ERROR";
+                        cell.style = cell.style + ";color:red;";
+                        break;
+                    
+                    case '32':
+                        value += " E_CORE_WARNING ";
+                        cell.style = cell.style + ";color:red;";
+                        break;
+                    
+                    case '64':
+                        value += " E_COMPILE_ERROR ";
+                        cell.style = cell.style + ";color:red;";
+                        break;
+                        
+                    default:
+                        cell.style = cell.style + ";color:red;";
+                }
+            }
+            else{
+                value = '';
+            }
+            
+            return value;
+        }
+    });
+
+    modMonitor.grid.PhpErrorColumn.superclass.constructor.call(this,config);
+};
+
+Ext.extend(modMonitor.grid.PhpErrorColumn, Ext.grid.Column,{});
+
+Ext.grid.Column.types['modmonitor-grid-phperrorcolumn'] = modMonitor.grid.PhpErrorColumn;
+
+
+
+modMonitor.grid.TimeColumn = function(config){
+
+    Ext.applyIf(config, {
+        header: _("modmonitor.time")
+        ,dataIndex: 'time'
+        ,renderer: function(value, cell, record){
+            
+            if(value > 0.5){
+                cell.style = cell.style + ";color:red;";
+            }
+            
+            return value;
+        }
+    });
+
+    modMonitor.grid.TimeColumn.superclass.constructor.call(this,config);
+};
+
+Ext.extend(modMonitor.grid.TimeColumn, Ext.grid.Column,{});
+
+Ext.grid.Column.types['modmonitor-grid-timecolumn'] = modMonitor.grid.TimeColumn;
+
+
+
+modMonitor.grid.FromCacheColumn = function(config){
+
+    Ext.applyIf(config, {
+        header: _("modmonitor.from_cache_1")
+        ,dataIndex: 'from_cache'
+        ,renderer: function(value, cell, record){
+            
+            if(value == '1' || value == 'true'){
+                cell.style = 'color:green;';
+                // value = 'Да';
+                value = '<i class="icon icon-check"></i>';
+            }
+            else if(value == '' || value == '0' || value == 'false'){
+                cell.style = 'color:red;';
+                value = '<i class="icon icon-close"></i>';
+            }
+            
+            return value;
+        }
+    });
+
+    modMonitor.grid.FromCacheColumn.superclass.constructor.call(this,config);
+};
+
+Ext.extend(modMonitor.grid.FromCacheColumn, Ext.grid.Column,{});
+
+Ext.grid.Column.types['modmonitor-grid-fromcachecolumn'] = modMonitor.grid.FromCacheColumn;
+
+
+
+
+
 /*
     Грид запросов с деталями по запросам
 */
@@ -735,6 +936,8 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                     ,dataIndex: 'parent'
                     // ,hidden: true
                 }
+                
+                //
                 ,{
                     header: _("modmonitor.context_key")
                     ,dataIndex: 'context_key'
@@ -776,14 +979,17 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                     //     return full_link;
                     // }
                 // }
+                //
                 ,{
                     header: _("modmonitor.date")
                     ,dataIndex: 'date'
                 }
+                //
                 ,{
                     header: _("modmonitor.resource_id")
                     ,dataIndex: 'resource_id'
                 }
+                //
                 ,{
                     header: 'IP'
                     ,dataIndex: 'ip'
@@ -806,6 +1012,7 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                 //         return value;
                 //     }
                 // }
+                //
                 ,{
                     header: _("modmonitor.http_status")
                     ,dataIndex: 'http_status'
@@ -866,6 +1073,7 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                         return value;
                     }
                 }
+                //
                 ,{
                     header: _("modmonitor.php_error")
                     ,dataIndex: 'php_error'
@@ -922,6 +1130,7 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                         return value;
                     }
                 }
+                //
                 ,{
                     header: _("modmonitor.time")
                     ,dataIndex: 'time'
@@ -934,18 +1143,22 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
                         return value;
                     }
                 }
+                //
                 ,{
                     header: _("modmonitor.php_memory")
                     ,dataIndex: 'php_memory'
                 }
+                //
                 ,{
                     header: _("modmonitor.db_queries")
                     ,dataIndex: 'db_queries'
                 }
+                //
                 ,{
                     header: _("modmonitor.db_queries_time")
                     ,dataIndex: 'db_queries_time'
                 }
+                //
                 ,{
                     header: _("modmonitor.from_cache_1")
                     ,dataIndex: 'from_cache'

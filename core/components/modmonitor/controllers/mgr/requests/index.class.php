@@ -21,10 +21,50 @@ class ModmonitorControllersMgrRequestsIndexManagerController extends ModmonitorC
                 "dataIndex" => 'parent',
             ),
             array(
+                "header" => $this->modx->lexicon("modmonitor.context_key"),
+                "dataIndex" => 'context_key',
+            ),
+            array(
+                "header" => $this->modx->lexicon("modmonitor.date"),
+                "dataIndex" => 'date',
+            ),
+            array(
+                "header" => $this->modx->lexicon("modmonitor.resource_id"),
+                "dataIndex" => 'resource_id',
+            ),
+            array(
+                "header" => $this->modx->lexicon("IP"),
+                "dataIndex" => 'ip',
+            ),
+            array(
                 "xtype"=> "modmonitor-grid-urlcolumn",
             ),
             array(
                 "xtype"=> "modmonitor-grid-useridcolumn",
+            ),
+            array(
+                "xtype"=> "modmonitor-grid-httpstatuscolumn",
+            ),
+            array(
+                "xtype"=> "modmonitor-grid-phperrorcolumn",
+            ),
+            array(
+                "xtype"=> "modmonitor-grid-timecolumn",
+            ),
+            array(
+                "header" => $this->modx->lexicon("modmonitor.php_memory"),
+                "dataIndex" => 'php_memory',
+            ),
+            array(
+                "header" => $this->modx->lexicon("modmonitor.db_queries"),
+                "dataIndex" => 'db_queries',
+            ),
+            array(
+                "header" => $this->modx->lexicon("modmonitor.db_queries_time"),
+                "dataIndex" => 'db_queries_time',
+            ),
+            array(
+                "xtype"=> "modmonitor-grid-fromcachecolumn",
             ),
         );
         
