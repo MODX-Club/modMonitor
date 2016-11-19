@@ -665,28 +665,7 @@ modMonitor.grid.Requests = function(config){
             ,format: 'grid'
         }
         ,remoteSort: true
-        ,fields: config.fields || [
-            'id'
-            ,'parent'
-            ,'url'
-            ,'date'
-            ,'context_key'
-            ,'site_url'
-            ,'resource_id'
-            ,'http_status'
-            ,'user_id'
-            ,'username'
-            ,'ip'
-            ,'time'
-            ,'php_memory'
-            ,'db_queries'
-            ,'db_queries_time'
-            ,'from_cache'
-            ,'resource_url'
-            ,'php_error'
-            ,'php_error_info'
-            ,'menu'
-        ]
+        ,fields: config.fields
         ,paging: true
         ,pageSize: 10
         ,plugins: this.expander

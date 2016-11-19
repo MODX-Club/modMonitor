@@ -63,9 +63,9 @@ if($modmonitor){
             "properties"    => $properties,
         )),
     ));
+    
+    $modx->modMonitor->addItem($modMonitorItem, false, true);
 }
-            
-$modx->modMonitor->addItem($modMonitorItem, false, true);
 
 /**********************************************************/
                 
