@@ -66,7 +66,7 @@ include_once $sources['builder_includes'] . 'system.settings.php';
 /*
  * Create custom system settings via vehicle 
  */
-# include_once $sources['builder_includes'] . 'system.events.php';
+include_once $sources['builder_includes'] . 'system.events.php';
 
 /*
  * Create Category

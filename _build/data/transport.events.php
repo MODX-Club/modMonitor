@@ -1,7 +1,7 @@
 <?php
 $events = array();
 
-$event_name = 'On'.PKG_NAME;
+$event_name = 'OnModMonitorPrepareRequestQuery';
 $event = $modx->newObject('modEvent', array(
   'service'   => 1,
   'groupname' => PKG_NAME,

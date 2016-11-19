@@ -348,8 +348,6 @@ Ext.grid.Column.types['modmonitor-grid-useridcolumn'] = modMonitor.grid.UserIdCo
 
 
 
-
-
 modMonitor.grid.HttpStatusColumn = function(config){
 
     Ext.applyIf(config, {
@@ -424,7 +422,7 @@ Ext.grid.Column.types['modmonitor-grid-httpstatuscolumn'] = modMonitor.grid.Http
 
 
 modMonitor.grid.PhpErrorColumn = function(config){
-
+    
     Ext.applyIf(config, {
         header: _("modmonitor.php_error")
         ,dataIndex: 'php_error'
@@ -480,7 +478,9 @@ modMonitor.grid.PhpErrorColumn = function(config){
             return value;
         }
     });
-
+    
+    // console.log(config);
+    
     modMonitor.grid.PhpErrorColumn.superclass.constructor.call(this,config);
 };
 
@@ -551,6 +551,108 @@ Ext.grid.Column.types['modmonitor-grid-fromcachecolumn'] = modMonitor.grid.FromC
 */
 
 
+
+
+modMonitor.grid.QuerySearchField = function(config){
+
+    Ext.applyIf(config, {
+        width: 250
+        ,enableKeyEvents: true
+        ,name: 'query'
+        ,emptyText: _("modmonitor.query")
+    });
+
+    modMonitor.grid.QuerySearchField.superclass.constructor.call(this,config);
+};
+
+Ext.extend(modMonitor.grid.QuerySearchField, Ext.form.TextField,{});
+
+Ext.reg('modmonitor-grid-querysearchfield', modMonitor.grid.QuerySearchField);
+
+
+
+modMonitor.grid.RuntimeSearchField = function(config){
+
+    Ext.applyIf(config, {
+        enableKeyEvents: true
+        ,name: 'time'
+        ,emptyText: _("modmonitor.runtime")
+        ,width: 140
+    });
+
+    modMonitor.grid.RuntimeSearchField.superclass.constructor.call(this,config);
+};
+
+Ext.extend(modMonitor.grid.RuntimeSearchField, Ext.form.NumberField,{});
+
+Ext.reg('modmonitor-grid-runtimesearchfield', modMonitor.grid.RuntimeSearchField);
+
+
+
+modMonitor.grid.CacheSearchField = function(config){
+
+    Ext.applyIf(config, {
+        name: 'from_cache'
+        ,mode: 'local'
+        ,emptyText: _("modmonitor.from_cache")
+        ,width: 100
+        ,store: new Ext.data.SimpleStore({
+            fields: ['d','v']
+            ,data: [[_("modmonitor.from_cache_all"), ''],[_("modmonitor.from_cache_1"),'1'],[_("modmonitor.from_cache_2"),'2']]
+        })
+        ,displayField: 'd'
+        ,valueField: 'v'
+    });
+
+    modMonitor.grid.CacheSearchField.superclass.constructor.call(this,config);
+};
+
+Ext.extend(modMonitor.grid.CacheSearchField, MODx.combo.ComboBox,{});
+
+Ext.reg('modmonitor-grid-cachesearchfield', modMonitor.grid.CacheSearchField);
+
+
+
+modMonitor.grid.ContextSearchField = function(config){
+
+    Ext.applyIf(config, {
+        name: 'context'
+        ,emptyText: _("modmonitor.context")
+        ,width: 110
+        ,baseParams: {
+            action: 'context/getlist'
+            ,sort: 'key'
+            ,dir: 'desc'
+        }
+    });
+
+    modMonitor.grid.ContextSearchField.superclass.constructor.call(this,config);
+};
+
+Ext.extend(modMonitor.grid.ContextSearchField, MODx.combo.Context,{});
+
+Ext.reg('modmonitor-grid-contextsearchfield', modMonitor.grid.ContextSearchField);
+
+
+
+modMonitor.grid.PhpErrorSearchField = function(config){
+
+    Ext.applyIf(config, {
+        width: 100
+        ,enableKeyEvents: true
+        ,name: 'php_error'
+        ,emptyText: _("modmonitor.php_error")
+    });
+
+    modMonitor.grid.PhpErrorSearchField.superclass.constructor.call(this,config);
+};
+
+Ext.extend(modMonitor.grid.PhpErrorSearchField, Ext.form.TextField,{});
+
+Ext.reg('modmonitor-grid-phperrorsearchfield', modMonitor.grid.PhpErrorSearchField);
+
+
+
 modMonitor.grid.Requests = function(config){
     config = config || {};
 
@@ -595,178 +697,200 @@ modMonitor.grid.Requests = function(config){
     config.tbar = this.getToolbar();
     
     modMonitor.grid.Requests.superclass.constructor.call(this,config);
+    
+    this.on("celldblclick", this.OnCelldDlClick, this);
+    
+    // var toolbar = this.getToolbar();
+    
+    // for(var i in toolbar.items.items){
+    //     var item = toolbar.items.items[i];
+    //     
+    //     if(typeof item != 'object'){
+    //         continue;
+    //     }
+    //     
+    //     
+    //     if(typeof item.getValue != 'function'){
+    //         continue;
+    //     }
+    //     
+    //     console.log(typeof item.getValue);
+    //     
+    //     console.log(item);
+    //     
+    //     item.on("change", function(field, e){
+    //         
+    //         console.log(field);
+    //         
+    //         
+    //         if(field.isDirty()){
+    //             field.originalValue = field.getValue();
+    //             this.getStore().setBaseParam( field.name, field.getValue() );
+    //             this.search();
+    //         }
+    //     
+    //     }, this);
+    //     
+    // }
+    
+    window.grid = this;
+    
+    // for(var i in this.filters){
+    //     var field = this.filters[i];
+    //     
+    //     if(typeof field != 'object'){
+    //         continue;
+    //     }
+    //     
+    //     console.log(field);
+    // }
+    
 };
 
 Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
 
     getToolbar: function(){
-
-        this.searchField = new Ext.form.TextField({
-            width: 250
-            ,enableKeyEvents: true
-            ,name: 'query'
-            ,emptyText: _("modmonitor.query")
-            ,listeners:{
-
-                // При изменении
-                change: {
-                    fn: function(field, e){
+        
+        this.filterFields = [];
+        
+        var filters = this.config.filters || [
+            
+            // {
+            //     xtype: "modmonitor-grid-querysearchfield"
+            // }
+            // 
+            // ,{
+            //     xtype: "modmonitor-grid-runtimesearchfield"
+            // }
+            // 
+            // ,{
+            //     xtype: "modmonitor-grid-cachesearchfield"
+            // }
+            // 
+            // ,{
+            //     xtype: "modmonitor-grid-contextsearchfield"
+            // }
+            // 
+            // ,{
+            //     xtype: "modmonitor-grid-phperrorsearchfield"
+            // }
+            
+        ];
+        
+        // console.log(filters);
+        // console.log(this.filters);
+        
+        for(var i in filters){
+            var filter = filters[i];
+            
+            if(typeof filter == 'function'){
+                continue;
+            }
+            
+            try{
+                if(filter = Ext.ComponentMgr.create(filter)){
+                    
+                    filter.enableKeyEvents = true;
+                    
+                    filter.on("change", function(field, e){
+                        
+                        // console.log(field);
+                        
+                        
                         if(field.isDirty()){
                             field.originalValue = field.getValue();
                             this.getStore().setBaseParam( field.name, field.getValue() );
                             this.search();
                         }
-                    }
-                    ,scope: this
-                }
-                ,keyup: {
-                    fn: function(field, e){
+                    
+                    }, this);
+                    
+                    
+                    filter.on("keyup", function(field, e){
+                        
+                        // console.log(field);
+                        
                         // Если нажали ENTERsearchField
                         if(e.getKey() == e.ENTER){
                             field.fireEvent('change', field, e);
                         }
-                    }
-                    ,scope: this
-                }
-            }
-        });
-
-        this.statusSearchField = new Ext.form.TextField({
-            width: 120
-            ,enableKeyEvents: true
-            ,name: 'status'
-            ,emptyText: _("modmonitor.status")
-            ,listeners:{
-
-                // При изменении
-                change: {
-                    fn: function(field, e){
-                        if(field.isDirty()){
-                            field.originalValue = field.getValue();
-                            this.getStore().setBaseParam( field.name, field.getValue() );
-                            this.search();
-                        }
-                    }
-                    ,scope: this
-                }
-                ,keyup: {
-                    fn: function(field, e){
+                    
+                    }, this);
+                    
+                    
+                    filter.on("select", function(field, e){
+                        
+                        // console.log(field);
+                        
                         // Если нажали ENTERsearchField
-                        if(e.getKey() == e.ENTER){
-                            field.fireEvent('change', field, e);
-                        }
-                    }
-                    ,scope: this
+                        field.fireEvent('change', field, e);
+                    
+                    }, this);
+                    
+                    
+    //                 ,keyup: {
+    //                     fn: function(field, e){
+    //                         // Если нажали ENTERsearchField
+    //                         if(e.getKey() == e.ENTER){
+    //                             field.fireEvent('change', field, e);
+    //                         }
+    //                     }
+    //                     ,scope: this
+    //                 }
+                //     select: {
+                //         fn: function(field, value){
+                //             this.getStore().setBaseParam( field.name, field.getValue() );
+                //             this.search();
+                //         }
+                //         ,scope: this
+                //     }
+                    
+                    this.filterFields.push(filter);
                 }
             }
-        });
-
-        this.timeSearchField = new Ext.form.NumberField({
-            enableKeyEvents: true
-            ,name: 'time'
-            ,emptyText: _("modmonitor.runtime")
-            ,width: 110
-            ,listeners:{
-
-                // При изменении
-                change: {
-                    fn: function(field, e){
-                        if(field.isDirty()){
-                            field.originalValue = field.getValue();
-                            this.getStore().setBaseParam( field.name, field.getValue() );
-                            this.search();
-                        }
-                    }
-                    ,scope: this
-                }
-                ,keyup: {
-                    fn: function(field, e){
-
-                        // Если нажали ENTER
-                        if(e.getKey() == e.ENTER){
-                            field.fireEvent('change', field, e);
-                            // this.search();
-                        }
-                    }
-                    ,scope: this
-                }
+            catch(e){
+                console.log(e);
             }
-        });
+            
+            
+            
+            // console.log(filter);
+        }
         
-        this.cacheSearchField = new MODx.combo.ComboBox({
-            name: 'from_cache'
-            ,mode: 'local'
-            ,emptyText: _("modmonitor.from_cache")
-            ,width: 100
-            ,store: new Ext.data.SimpleStore({
-                fields: ['d','v']
-                ,data: [[_("modmonitor.from_cache_all"), ''],[_("modmonitor.from_cache_1"),'1'],[_("modmonitor.from_cache_2"),'2']]
-            })
-            ,displayField: 'd'
-            ,valueField: 'v'
-            ,listeners:{
-                select: {
-                    fn: function(field, value){
-                        this.getStore().setBaseParam( field.name, field.getValue() );
-                        this.search();
-                    }
-                    ,scope: this
-                }
-            }
-            ,scope: this
-        });
-        
-        this.contextSearchField = new MODx.combo.Context({
-            name: 'context'
-            ,emptyText: _("modmonitor.context")
-            ,width: 110
-            ,baseParams: {
-                action: 'context/getlist'
-                ,sort: 'key'
-                ,dir: 'desc'
-            }
-            ,listeners:{
-                select: {
-                    fn: function(field, value){
-                        this.getStore().setBaseParam( field.name, field.getValue() );
-                        this.search();
-                    }
-                    ,scope: this
-                }
-            }
-            ,scope: this
-        });
-        
-        
-        this.phpErrorSearchField = new Ext.form.TextField({
-            width: 100
-            ,enableKeyEvents: true
-            ,name: 'php_error'
-            ,emptyText: _("modmonitor.php_error")
-            ,listeners:{
+        // for(var i in toolbar.items.items){
+        //     var item = toolbar.items.items[i];
+        //     
+        //     if(typeof item != 'object'){
+        //         continue;
+        //     }
+        //     
+        //     
+        //     if(typeof item.getValue != 'function'){
+        //         continue;
+        //     }
+        //     
+        //     console.log(typeof item.getValue);
+        //     
+        //     console.log(item);
+        //     
+        //     item.on("change", function(field, e){
+        //         
+        //         console.log(field);
+        //         
+        //         
+        //         if(field.isDirty()){
+        //             field.originalValue = field.getValue();
+        //             this.getStore().setBaseParam( field.name, field.getValue() );
+        //             this.search();
+        //         }
+        //     
+        //     }, this);
+        //     
+        // }
 
-                // При изменении
-                change: {
-                    fn: function(field, e){
-                        if(field.isDirty()){
-                            field.originalValue = field.getValue();
-                            this.getStore().setBaseParam( field.name, field.getValue() );
-                            this.search();
-                        }
-                    }
-                    ,scope: this
-                }
-                ,keyup: {
-                    fn: function(field, e){
-                        // Если нажали ENTERsearchField
-                        if(e.getKey() == e.ENTER){
-                            field.fireEvent('change', field, e);
-                        }
-                    }
-                    ,scope: this
-                }
-            }
-        });
+        var items = this.filterFields;
+        // var items = [];
+        
 
         this.SearchButton = new Ext.Button({
             text: _("modmonitor.search")
@@ -779,64 +903,79 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
             ,scope: this
             ,handler: this.clear
         });
+        
+        
+        items.push(this.SearchButton);
+        items.push(this.ClearButton);
+        items.push('->');
+        items.push({
+            text: _("modmonitor.truncate_stat")
+            ,cls: 'x-btn tree-trash'
+            ,handler: this.truncateStatistique
+            ,scope: this
+        });
+        
+        // console.log(items);
+
+
 
         return new Ext.Toolbar({
             defaults:{
                 style: "margin: 0 3px;"
             }
-            ,items: [
-                // {
-                //     xtype: 'label'
-                //     ,text: 'Поиск'
-                //     ,style: 'font-size: 16px;'
-                // }
-                // ,
-                this.searchField
-                // ,{
-                //     xtype: 'label'
-                //     ,text: 'Время'
-                //     ,style: 'font-size: 16px;'
-                // }
-                ,this.timeSearchField
-                
-                ,this.cacheSearchField
-                ,this.contextSearchField
-                ,this.statusSearchField
-                ,this.phpErrorSearchField
-                ,this.SearchButton
-                ,this.ClearButton
-                ,'->'
-                ,{
-                    text: _("modmonitor.truncate_stat")
-                    ,cls: 'x-btn tree-trash'
-                    ,handler: this.truncateStatistique
-                    ,scope: this
-                }
-            ]
+            ,items: items
+            
+            // ,items: [
+            //     this.filters.searchField
+            //     ,this.filters.timeSearchField
+            //     
+            //     ,this.filters.cacheSearchField
+            //     ,this.filters.contextSearchField
+            //     ,this.filters.statusSearchField
+            //     ,this.filters.phpErrorSearchField
+            //     
+            //     ,this.SearchButton
+            //     ,this.ClearButton
+            //     ,'->'
+            //     ,{
+            //         text: _("modmonitor.truncate_stat")
+            //         ,cls: 'x-btn tree-trash'
+            //         ,handler: this.truncateStatistique
+            //         ,scope: this
+            //     }
+            // ]
         });
     }
     
     
     ,clear: function(){
         
-        var fields = [
-            this.searchField,
-            this.timeSearchField,
-            this.cacheSearchField,
-            this.contextSearchField,
-            this.statusSearchField,
-            this.phpErrorSearchField,
-        ];
+        // var fields = [
+        //     this.searchField,
+        //     this.timeSearchField,
+        //     this.cacheSearchField,
+        //     this.contextSearchField,
+        //     this.statusSearchField,
+        //     this.phpErrorSearchField,
+        // ];
         
-        for(var i in fields){
+        // console.log(this.filterFields);
+        
+        for(var i in this.filterFields){
             
-            var field = fields[i];
+            var field = this.filterFields[i];
             
             if(typeof field != 'object'){
                 continue;
             }
             
-            field.setValue('');
+            if(typeof field.setValue != 'function'){
+                continue;
+            }
+            
+            // console.log(field);
+            
+            field.setValue(field.initialConfig.value || '');
             field.originalValue = field.getValue('');
             
             this.getStore().setBaseParam(field.name, field.getValue(''));
@@ -911,273 +1050,285 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
 
     ,_loadColumnModel: function(){
         
-        console.log(this);
+        // console.log(this);
+        
+        // var columns = [
+        //     this.expander
+        // ];
+        // 
+        
+        this.config.columns = this.config.columns || [
+            // {
+            //     header: 'ID'
+            //     ,dataIndex: 'id'
+            //     ,editable: false
+            //     // ,hidden: true
+            // }
+            // 
+            // // 
+            // ,{
+            //     header: _("modmonitor.parent")
+            //     ,dataIndex: 'parent'
+            //     // ,hidden: true
+            // }
+            // 
+            // //
+            // ,{
+            //     header: _("modmonitor.context_key")
+            //     ,dataIndex: 'context_key'
+            // }
+            // // , new Ext.grid.Column({
+            // //     header: "sdfs"
+            // // })
+            // 
+            // // 
+            // ,{
+            //     xtype: "modmonitor-grid-urlcolumn"
+            // }
+            // // ,{
+            //     // xtype: 'modmonitor-grid-urlcolumn'
+            //     // header: _("modmonitor.url")
+            //     // ,dataIndex: 'url'
+            //     // ,width: 300
+            //     // ,renderer: function(value, cell, record){
+            //     //     
+            //     //     // value = value.replace(/^\/+/, "");
+            //     //     
+            //     //     var http_status = record.get("http_status");
+            //     //     var user_id = record.get('user_id');
+            //     //     var link = record.get("site_url");
+            //     //     
+            //     //     var full_link;
+            //     //     
+            //     //     link += value.replace(/^\/+/, "");
+            //     //     
+            //     //     full_link = '<a href="'+ link +'" target="_blank" style="display:inline-block;padding-right: 10px;">'+ value +'</a>';
+            //     //     
+            //     //     if(user_id !== '' && user_id !== null && user_id != '0' && user_id != MODx.user.id){
+            //     //         var auth_link = link + (/\?/.test(link) ? "&" : "?") + 'switch_user='+ user_id;
+            //     //         
+            //     //         full_link += ' <a href="'+ auth_link +'" target="_blank" title="'+ _("modmonitor.auth_from_name") + record.get('username') +'"><i class="icon icon-user"></i></a>';
+            //     //     }
+            //     //     
+            //     //     
+            //     //     return full_link;
+            //     // }
+            // // }
+            // //
+            // ,{
+            //     header: _("modmonitor.date")
+            //     ,dataIndex: 'date'
+            // }
+            // //
+            // ,{
+            //     header: _("modmonitor.resource_id")
+            //     ,dataIndex: 'resource_id'
+            // }
+            // //
+            // ,{
+            //     header: 'IP'
+            //     ,dataIndex: 'ip'
+            // }
+            // 
+            // // 
+            // ,{
+            //     xtype: "modmonitor-grid-useridcolumn"
+            // }
+            // // ,{
+            // //     header: _("modmonitor.user_id")
+            // //     ,dataIndex: 'user_id'
+            // //     ,renderer: function(value, cell, record){
+            // //         var username = record.get('username');
+            // //         
+            // //         if(username !== '' && username !== null){
+            // //             value = username + ' (' + value + ')';
+            // //         }
+            // //         
+            // //         return value;
+            // //     }
+            // // }
+            // //
+            // ,{
+            //     header: _("modmonitor.http_status")
+            //     ,dataIndex: 'http_status'
+            //     ,renderer: function(value, cell, record){
+            //         
+            //         switch(value){
+            //             
+            //             case '200':
+            //                 cell.style = cell.style + ";color:green;";
+            //                 break;
+            //             
+            //             case '300':
+            //                 value = value + ' Multiple Choices';
+            //                 cell.style = cell.style + ";color:#FF7F50;";
+            //                 break;
+            //                 
+            //             case '301':
+            //                 value = value + ' Moved Permanently';
+            //                 cell.style = cell.style + ";color:#FF7F50;";
+            //                 break;
+            //                 
+            //             case '302':
+            //                 value = value + ' Moved Temporarily/Found';
+            //                 cell.style = cell.style + ";color:#FF7F50;";
+            //                 break;
+            //                 
+            //             
+            //             case '401':
+            //                 value = value + ' Not Authorized';
+            //                 cell.style = cell.style + ";color:red;";
+            //                 break;
+            //             
+            //             case '402':
+            //                 value = value + ' Payment Required';
+            //                 cell.style = cell.style + ";color:red;";
+            //                 break;
+            //             
+            //             case '403':
+            //                 value = value + ' Forbidden';
+            //                 cell.style = cell.style + ";color:red;";
+            //                 break;
+            //             
+            //             case '404':
+            //                 value = value + ' Not Found';
+            //                 cell.style = cell.style + ";color:red;";
+            //                 break;
+            //             
+            //             case '405':
+            //                 value = value + ' Method Not Allowed';
+            //                 cell.style = cell.style + ";color:red;";
+            //                 break;
+            //                 
+            //             default:
+            //                 cell.style = cell.style + ";color:red;";
+            //                 
+            //         }
+            //         
+            //         return value;
+            //     }
+            // }
+            // //
+            // ,{
+            //     header: _("modmonitor.php_error")
+            //     ,dataIndex: 'php_error'
+            //     ,editable: true
+            //     ,renderer: function(value, cell, record){
+            //         
+            //         console.log(this);
+            //         
+            //         if(value != '0'){
+            //             
+            //             switch(value){
+            //                 
+            //                 case '1':
+            //                     value += " E_ERROR";
+            //                     cell.style = cell.style + ";color:red;";
+            //                     break;
+            //                 
+            //                 case '2':
+            //                     value += " E_WARNING";
+            //                     cell.style = cell.style + ";color:red;";
+            //                     break;
+            //                 
+            //                 case '4':
+            //                     value += " E_PARSE";
+            //                     cell.style = cell.style + ";color:red;";
+            //                     break;
+            //                 
+            //                 case '8':
+            //                     value += " E_NOTICE";
+            //                     cell.style = cell.style + ";color:red;";
+            //                     break;
+            //                 
+            //                 case '16':
+            //                     value += " E_CORE_ERROR";
+            //                     cell.style = cell.style + ";color:red;";
+            //                     break;
+            //                 
+            //                 case '32':
+            //                     value += " E_CORE_WARNING ";
+            //                     cell.style = cell.style + ";color:red;";
+            //                     break;
+            //                 
+            //                 case '64':
+            //                     value += " E_COMPILE_ERROR ";
+            //                     cell.style = cell.style + ";color:red;";
+            //                     break;
+            //                     
+            //                 default:
+            //                     cell.style = cell.style + ";color:red;";
+            //             }
+            //         }
+            //         else{
+            //             value = '';
+            //         }
+            //         
+            //         return value;
+            //     }
+            // }
+            // //
+            // ,{
+            //     header: _("modmonitor.time")
+            //     ,dataIndex: 'time'
+            //     ,renderer: function(value, cell, record){
+            //         
+            //         if(value > 0.5){
+            //             cell.style = cell.style + ";color:red;";
+            //         }
+            //         
+            //         return value;
+            //     }
+            // }
+            // //
+            // ,{
+            //     header: _("modmonitor.php_memory")
+            //     ,dataIndex: 'php_memory'
+            // }
+            // //
+            // ,{
+            //     header: _("modmonitor.db_queries")
+            //     ,dataIndex: 'db_queries'
+            // }
+            // //
+            // ,{
+            //     header: _("modmonitor.db_queries_time")
+            //     ,dataIndex: 'db_queries_time'
+            // }
+            // //
+            // ,{
+            //     header: _("modmonitor.from_cache_1")
+            //     ,dataIndex: 'from_cache'
+            //     ,renderer: function(value, cell, record){
+            //         
+            //         if(value == '1' || value == 'true'){
+            //             cell.style = 'color:green;';
+            //             // value = 'Да';
+            //             value = '<i class="icon icon-check"></i>';
+            //         }
+            //         else if(value == '' || value == '0' || value == 'false'){
+            //             cell.style = 'color:red;';
+            //             value = '<i class="icon icon-close"></i>';
+            //         }
+            //         
+            //         return value;
+            //     }
+            // }
+        ];
+        
+        this.config.columns.unshift(this.expander);
+        
+        // columns.push(
+        // );
         
         this.cm = new Ext.grid.ColumnModel({
             grid: this
-            ,
-            defaults: {
+            ,defaults: {
                 width: 120
                 ,sortable: true
                 ,editable: false
             },
-            columns: this.config.columns || [
-                this.expander
-                ,{
-                    header: 'ID'
-                    ,dataIndex: 'id'
-                    ,editable: false
-                    // ,hidden: true
-                }
-                
-                // 
-                ,{
-                    header: _("modmonitor.parent")
-                    ,dataIndex: 'parent'
-                    // ,hidden: true
-                }
-                
-                //
-                ,{
-                    header: _("modmonitor.context_key")
-                    ,dataIndex: 'context_key'
-                }
-                // , new Ext.grid.Column({
-                //     header: "sdfs"
-                // })
-                
-                // 
-                ,{
-                    xtype: "modmonitor-grid-urlcolumn"
-                }
-                // ,{
-                    // xtype: 'modmonitor-grid-urlcolumn'
-                    // header: _("modmonitor.url")
-                    // ,dataIndex: 'url'
-                    // ,width: 300
-                    // ,renderer: function(value, cell, record){
-                    //     
-                    //     // value = value.replace(/^\/+/, "");
-                    //     
-                    //     var http_status = record.get("http_status");
-                    //     var user_id = record.get('user_id');
-                    //     var link = record.get("site_url");
-                    //     
-                    //     var full_link;
-                    //     
-                    //     link += value.replace(/^\/+/, "");
-                    //     
-                    //     full_link = '<a href="'+ link +'" target="_blank" style="display:inline-block;padding-right: 10px;">'+ value +'</a>';
-                    //     
-                    //     if(user_id !== '' && user_id !== null && user_id != '0' && user_id != MODx.user.id){
-                    //         var auth_link = link + (/\?/.test(link) ? "&" : "?") + 'switch_user='+ user_id;
-                    //         
-                    //         full_link += ' <a href="'+ auth_link +'" target="_blank" title="'+ _("modmonitor.auth_from_name") + record.get('username') +'"><i class="icon icon-user"></i></a>';
-                    //     }
-                    //     
-                    //     
-                    //     return full_link;
-                    // }
-                // }
-                //
-                ,{
-                    header: _("modmonitor.date")
-                    ,dataIndex: 'date'
-                }
-                //
-                ,{
-                    header: _("modmonitor.resource_id")
-                    ,dataIndex: 'resource_id'
-                }
-                //
-                ,{
-                    header: 'IP'
-                    ,dataIndex: 'ip'
-                }
-                
-                // 
-                ,{
-                    xtype: "modmonitor-grid-useridcolumn"
-                }
-                // ,{
-                //     header: _("modmonitor.user_id")
-                //     ,dataIndex: 'user_id'
-                //     ,renderer: function(value, cell, record){
-                //         var username = record.get('username');
-                //         
-                //         if(username !== '' && username !== null){
-                //             value = username + ' (' + value + ')';
-                //         }
-                //         
-                //         return value;
-                //     }
-                // }
-                //
-                ,{
-                    header: _("modmonitor.http_status")
-                    ,dataIndex: 'http_status'
-                    ,renderer: function(value, cell, record){
-                        
-                        switch(value){
-                            
-                            case '200':
-                                cell.style = cell.style + ";color:green;";
-                                break;
-                            
-                            case '300':
-                                value = value + ' Multiple Choices';
-                                cell.style = cell.style + ";color:#FF7F50;";
-                                break;
-                                
-                            case '301':
-                                value = value + ' Moved Permanently';
-                                cell.style = cell.style + ";color:#FF7F50;";
-                                break;
-                                
-                            case '302':
-                                value = value + ' Moved Temporarily/Found';
-                                cell.style = cell.style + ";color:#FF7F50;";
-                                break;
-                                
-                            
-                            case '401':
-                                value = value + ' Not Authorized';
-                                cell.style = cell.style + ";color:red;";
-                                break;
-                            
-                            case '402':
-                                value = value + ' Payment Required';
-                                cell.style = cell.style + ";color:red;";
-                                break;
-                            
-                            case '403':
-                                value = value + ' Forbidden';
-                                cell.style = cell.style + ";color:red;";
-                                break;
-                            
-                            case '404':
-                                value = value + ' Not Found';
-                                cell.style = cell.style + ";color:red;";
-                                break;
-                            
-                            case '405':
-                                value = value + ' Method Not Allowed';
-                                cell.style = cell.style + ";color:red;";
-                                break;
-                                
-                            default:
-                                cell.style = cell.style + ";color:red;";
-                                
-                        }
-                        
-                        return value;
-                    }
-                }
-                //
-                ,{
-                    header: _("modmonitor.php_error")
-                    ,dataIndex: 'php_error'
-                    ,editable: true
-                    ,renderer: function(value, cell, record){
-                        
-                        if(value != '0'){
-                            
-                            switch(value){
-                                
-                                case '1':
-                                    value += " E_ERROR";
-                                    cell.style = cell.style + ";color:red;";
-                                    break;
-                                
-                                case '2':
-                                    value += " E_WARNING";
-                                    cell.style = cell.style + ";color:red;";
-                                    break;
-                                
-                                case '4':
-                                    value += " E_PARSE";
-                                    cell.style = cell.style + ";color:red;";
-                                    break;
-                                
-                                case '8':
-                                    value += " E_NOTICE";
-                                    cell.style = cell.style + ";color:red;";
-                                    break;
-                                
-                                case '16':
-                                    value += " E_CORE_ERROR";
-                                    cell.style = cell.style + ";color:red;";
-                                    break;
-                                
-                                case '32':
-                                    value += " E_CORE_WARNING ";
-                                    cell.style = cell.style + ";color:red;";
-                                    break;
-                                
-                                case '64':
-                                    value += " E_COMPILE_ERROR ";
-                                    cell.style = cell.style + ";color:red;";
-                                    break;
-                                    
-                                default:
-                                    cell.style = cell.style + ";color:red;";
-                            }
-                        }
-                        else{
-                            value = '';
-                        }
-                        
-                        return value;
-                    }
-                }
-                //
-                ,{
-                    header: _("modmonitor.time")
-                    ,dataIndex: 'time'
-                    ,renderer: function(value, cell, record){
-                        
-                        if(value > 0.5){
-                            cell.style = cell.style + ";color:red;";
-                        }
-                        
-                        return value;
-                    }
-                }
-                //
-                ,{
-                    header: _("modmonitor.php_memory")
-                    ,dataIndex: 'php_memory'
-                }
-                //
-                ,{
-                    header: _("modmonitor.db_queries")
-                    ,dataIndex: 'db_queries'
-                }
-                //
-                ,{
-                    header: _("modmonitor.db_queries_time")
-                    ,dataIndex: 'db_queries_time'
-                }
-                //
-                ,{
-                    header: _("modmonitor.from_cache_1")
-                    ,dataIndex: 'from_cache'
-                    ,renderer: function(value, cell, record){
-                        
-                        if(value == '1' || value == 'true'){
-                            cell.style = 'color:green;';
-                            // value = 'Да';
-                            value = '<i class="icon icon-check"></i>';
-                        }
-                        else if(value == '' || value == '0' || value == 'false'){
-                            cell.style = 'color:red;';
-                            value = '<i class="icon icon-close"></i>';
-                        }
-                        
-                        return value;
-                    }
-                }
-            ]
+            columns: this.config.columns
             ,getCellEditor: this.getCellEditor
         });
         
@@ -1206,65 +1357,28 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
         
         // console.log(fieldName);
         
-        switch(fieldName){
-            
-            case "php_error":
-                
-                if(record.get(fieldName) != '0'){
-                    
-                    try{
-                        var info = JSON.parse(record.get("php_error_info"));
-                    }
-                    catch(e){
-                        MODx.msg.alert(_("MODx.lang.error"), _("modmonitor.unable_parse_data"));
-                        return;
-                    }
-                    
-                    
-                    this.ErrWindow = new MODx.Window({
-                        title: _("modmonitor.err_descr")
-                        ,width: 540
-                        ,mode: 'local'
-                        ,html: '\
-                        <p><b>'+ _("modmonitor.err_descr_msg") +': </b>'+ info.message +'</p>\
-                        <p><b>'+ _("modmonitor.err_descr_file") +': </b>'+ info.file +'</p>\
-                        <p><b>'+ _("modmonitor.err_descr_line") +': </b>'+ info.line +'</p>\
-                        '
-                        ,buttons: [{
-                            text: _('close')
-                            ,scope: this
-                            ,handler: function() { 
-                                this.ErrWindow.close(); 
-                            }
-                        }]
-                    });
-                    
-                    this.ErrWindow.show();
-                }
-                
-                
-                return;
-                break;
-            
-            // case 'date':
-            // case 'date_till':
-            //     // return new Ext.form.DateField({
-            //     //     // format: 'Y-m-d'
-            //     //     // ,value: '2016-05-06'
-            //     //     // value: '01/01/01'
-            //     //     // value: new Date()
-            //     // });
-            //     
-            //     return new Ext.grid.GridEditor(
-            //         new Ext.form.DateField({
-            //             format: 'Y-m-d'
-            //             // value: '2016-05-06'
-            //         })
-            //     );
-            //     
-            //     // o = 'date';
-            //     break;
-        }
+        // switch(fieldName){
+        //     
+        //     
+        //     // case 'date':
+        //     // case 'date_till':
+        //     //     // return new Ext.form.DateField({
+        //     //     //     // format: 'Y-m-d'
+        //     //     //     // ,value: '2016-05-06'
+        //     //     //     // value: '01/01/01'
+        //     //     //     // value: new Date()
+        //     //     // });
+        //     //     
+        //     //     return new Ext.grid.GridEditor(
+        //     //         new Ext.form.DateField({
+        //     //             format: 'Y-m-d'
+        //     //             // value: '2016-05-06'
+        //     //         })
+        //     //     );
+        //     //     
+        //     //     // o = 'date';
+        //     //     break;
+        // }
         
         if(!o){
             o = MODx.load({
@@ -1276,6 +1390,47 @@ Ext.extend(modMonitor.grid.Requests, MODx.grid.Grid,{
     }
     
 
+    ,OnCelldDlClick: function(grid, rowIndex, columnIndex, e ){
+        // console.log(this);
+        // 
+        // console.log(columnIndex);
+        // console.log(this.getView().cm.columns[columnIndex].dataIndex);
+        
+        var record = this.store.getAt(rowIndex);
+        
+        // console.log(record);
+        
+        if(this.getView().cm.columns[columnIndex].dataIndex == 'php_error' && record.get('php_error') != '0'){
+            
+            try{
+                var info = JSON.parse(record.get("php_error_info"));
+            }
+            catch(e){
+                MODx.msg.alert(_("MODx.lang.error"), _("modmonitor.unable_parse_data"));
+                return;
+            }
+            
+            this.ErrWindow = new MODx.Window({
+                title: _("modmonitor.err_descr")
+                ,width: 540
+                ,mode: 'local'
+                ,html: '\
+                <p><b>'+ _("modmonitor.err_descr_msg") +': </b>'+ info.message +'</p>\
+                <p><b>'+ _("modmonitor.err_descr_file") +': </b>'+ info.file +'</p>\
+                <p><b>'+ _("modmonitor.err_descr_line") +': </b>'+ info.line +'</p>\
+                '
+                ,buttons: [{
+                    text: _('close')
+                    ,scope: this
+                    ,handler: function() { 
+                        this.ErrWindow.close(); 
+                    }
+                }]
+            });
+            
+            this.ErrWindow.show();
+        }
+    }
     
     ,onUpdateSuccess: function(response){
         if(!response.success){

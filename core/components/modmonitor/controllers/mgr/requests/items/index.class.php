@@ -4,10 +4,10 @@ require_once __DIR__ . '/../../index.class.php';
 
 class ModmonitorControllersMgrRequestsItemsIndexManagerController extends ModmonitorControllersMgrIndexManagerController{
     
-    public function loadCustomCssJs() {
+    public function registerBaseScripts() {
         
         
-        parent::loadCustomCssJs();
+        parent::registerBaseScripts();
         
         $this->addHtml("
         <script>

@@ -98,6 +98,11 @@ class modModmonitorRequestsGetdataProcessor extends modModmonitorGetdataProcesso
             $c->where($where);
         }
         
+        $this->modx->invokeEvent("OnModMonitorPrepareRequestQuery", array(
+            "processor" => & $this,
+            "query" => & $c,
+        ));
+        
         # $c->prepare();
         # print $c->toSQL();
         
@@ -152,6 +157,9 @@ class modModmonitorRequestsGetdataProcessor extends modModmonitorGetdataProcesso
                 "'denied to view' as `path`",
             ));
         }
+        
+        # $c->prepare();
+        # print $c->toSQL();
         
         return $c;
     }

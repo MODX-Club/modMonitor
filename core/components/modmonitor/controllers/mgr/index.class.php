@@ -45,10 +45,10 @@ class ModmonitorControllersMgrIndexManagerController extends modExtraManagerCont
         return $topics;
     }
     
-    public function loadCustomCssJs() {
+    public function registerBaseScripts() {
         
         
-        parent::loadCustomCssJs();
+        parent::registerBaseScripts();
         
         # $this->addJavascript($this->config['assets_url'].'widgets/companies/contracts.grid.js');
         

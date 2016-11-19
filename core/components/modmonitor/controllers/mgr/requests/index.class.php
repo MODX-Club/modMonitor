@@ -5,8 +5,11 @@ require_once __DIR__ . '/../index.class.php';
 class ModmonitorControllersMgrRequestsIndexManagerController extends ModmonitorControllersMgrIndexManagerController{
     
     public $requests_grid_columns = array();
+    public $requests_filters = array();
     
-    public function loadCustomCssJs() {
+    public function registerBaseScripts() {
+        
+        parent::registerBaseScripts();
         
         # $this->requests_grid_columns = columns: [
         #         {
@@ -16,6 +19,10 @@ class ModmonitorControllersMgrRequestsIndexManagerController extends ModmonitorC
         #         };
         
         $this->requests_grid_columns = array(
+            array(
+                "header" => $this->modx->lexicon("modmonitor.request_id"),
+                "dataIndex" => 'id',
+            ),
             array(
                 "header" => $this->modx->lexicon("modmonitor.parent"),
                 "dataIndex" => 'parent',
@@ -68,9 +75,41 @@ class ModmonitorControllersMgrRequestsIndexManagerController extends ModmonitorC
             ),
         );
         
+        
+        $this->requests_filters = array(
+            array(
+                "xtype"=> "modmonitor-grid-querysearchfield",
+            ),
+            array(
+                "xtype"=> "modmonitor-grid-runtimesearchfield",
+            ),
+            array(
+                "xtype"=> "modmonitor-grid-cachesearchfield",
+            ),
+            array(
+                "xtype"=> "modmonitor-grid-contextsearchfield",
+            ),
+            array(
+                "xtype"=> "modmonitor-grid-phperrorsearchfield",
+            ),
+        );
+        
+        
+    }
+    
+    
+    public function loadCustomCssJs() {
+        
         parent::loadCustomCssJs();
         
+        # print '<pre>';
+        # 
+        # print_r($this->requests_grid_columns);
+        # 
+        # exit;
+        
         $requests_grid_columns = json_encode($this->requests_grid_columns);
+        $requests_filters = json_encode($this->requests_filters);
         
         # $requests_grid_columns = 'null';
         
@@ -78,7 +117,7 @@ class ModmonitorControllersMgrRequestsIndexManagerController extends ModmonitorC
         <script>
         Ext.onReady(function() {
         
-            console.log({$requests_grid_columns});
+            // console.log({$requests_grid_columns});
         
             MODx.add({
                 xtype: 'modmonitor-panel-panel'
@@ -86,6 +125,7 @@ class ModmonitorControllersMgrRequestsIndexManagerController extends ModmonitorC
                 ,items:[{
                     xtype: 'modmonitor-grid-requests'
                     ,columns: {$requests_grid_columns}
+                    ,filters: {$requests_filters}
                 }]
             });
         });

@@ -1,7 +1,8 @@
 modMonitor-2.6.0-beta
 ================================
 - Added setting modmonitor.collect_plugins_info
-- 
+- Added OnModMonitorPrepareRequestQuery event
+- Added custom columns and filters for Requests Grid
 
 
 modMonitor-2.5.0-beta
