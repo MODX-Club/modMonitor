@@ -1,3 +1,8 @@
+modMonitor-2.6.2-beta
+================================
+- Fix with plugins statistic
+
+
 modMonitor-2.6.1-beta
 ================================
 - Remove $scriptProperties from plugins statistic

@@ -45,14 +45,14 @@ if($modmonitor){
     
     $properties = array();
     
-    /*if($scriptProperties){
+    if($scriptProperties){
         foreach($scriptProperties as $property){
             if(is_object($property)){
                 continue;
             }
             $properties[] = $property;
         }
-    }*/
+    }
     
 
     $modMonitorItem = $this->xpdo->newObject("modMonitorRequestItem", array(
@@ -64,7 +64,8 @@ if($modmonitor){
         )),
     ));
     
-    $modx->modMonitor->addItem($modMonitorItem, false, true);
+    $modx->modMonitor->addItem($modMonitorItem, false, false);
+    $modx->modMonitor->unsetItem($modMonitorItem);
 }
 
 /**********************************************************/
