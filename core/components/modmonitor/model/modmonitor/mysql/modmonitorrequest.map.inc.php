@@ -311,7 +311,7 @@ $xpdo_meta_map['modMonitorRequest']= array (
       ),
     ),
   ),
-  "aggresates"  => array(
+  "aggregates"  => array(
         "Parent" => array(
             "class" => "modMonitorRequest",
             "cardinality"   => "one",
