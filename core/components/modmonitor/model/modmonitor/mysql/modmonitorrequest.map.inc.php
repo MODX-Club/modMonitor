@@ -25,6 +25,8 @@ $xpdo_meta_map['modMonitorRequest']= array (
     'db_queries_time' => 0,
     'php_error' => 0,
     'php_error_info' => '',
+    'referer' => '',
+    'user_agent' => '',
   ),
   'fieldMeta' => 
   array (
@@ -183,6 +185,23 @@ $xpdo_meta_map['modMonitorRequest']= array (
       'null' => false,
       'default' => '',
     ),
+    'referer' => 
+    array (
+      'dbtype' => 'text',
+      'phptype' => 'string',
+      'null' => false,
+      'default' => '',
+      'index' => 'index',
+    ),
+    'user_agent' => 
+    array (
+      'dbtype' => 'varchar',
+      'precision' => '1024',
+      'phptype' => 'string',
+      'null' => false,
+      'default' => '',
+      'index' => 'index',
+    ),
   ),
   'indexes' => 
   array (
@@ -303,6 +322,38 @@ $xpdo_meta_map['modMonitorRequest']= array (
       'columns' => 
       array (
         'php_error' => 
+        array (
+          'length' => '',
+          'collation' => 'A',
+          'null' => false,
+        ),
+      ),
+    ),
+    'referer' => 
+    array (
+      'alias' => 'referer',
+      'primary' => false,
+      'unique' => false,
+      'type' => 'BTREE',
+      'columns' => 
+      array (
+        'referer' => 
+        array (
+          'length' => '',
+          'collation' => 'A',
+          'null' => false,
+        ),
+      ),
+    ),
+    'user_agent' => 
+    array (
+      'alias' => 'user_agent',
+      'primary' => false,
+      'unique' => false,
+      'type' => 'BTREE',
+      'columns' => 
+      array (
+        'user_agent' => 
         array (
           'length' => '',
           'collation' => 'A',

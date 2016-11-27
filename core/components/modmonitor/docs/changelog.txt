@@ -1,3 +1,10 @@
+modMonitor-2.6.3-beta
+================================
+- Added Referer
+- Added UserAgent
+- Minor bugfix
+
+
 modMonitor-2.6.2-beta
 ================================
 - Fix with plugins statistic

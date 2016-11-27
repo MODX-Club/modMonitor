@@ -11,7 +11,7 @@ if ($object->xpdo) {
       $modx->addPackage($pkgNameLower,$modelPath);
 
       $manager = $modx->getManager();
-      $modx->setLogLevel(modX::LOG_LEVEL_ERROR);
+      $modx->setLogLevel(modX::LOG_LEVEL_FATAL);
       
       // adding xpdo objects
       $manager->createObjectContainer('modMonitorRequest');
@@ -32,6 +32,12 @@ if ($object->xpdo) {
       $manager->addIndex('modMonitorRequestItem', 'parent');
 
       $manager->addField('modMonitorRequestItem', 'properties');
+
+      $manager->addField('modMonitorRequest', 'referer');
+      $manager->addIndex('modMonitorRequest', 'referer');
+
+      $manager->addField('modMonitorRequest', 'user_agent');
+      $manager->addIndex('modMonitorRequest', 'user_agent');
       
       $modx->setLogLevel(modX::LOG_LEVEL_INFO);
 

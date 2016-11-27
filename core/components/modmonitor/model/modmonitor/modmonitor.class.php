@@ -86,6 +86,8 @@ class modMonitor{
             "ip"        => $ip,
             "url"       => $_SERVER['REQUEST_URI'],
             "parent"    => !empty($_SERVER['HTTP_MODMONITOR_OBJECT_ID']) ? (int)$_SERVER['HTTP_MODMONITOR_OBJECT_ID'] : null,
+            "referer"   => !empty($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : "",
+            "user_agent" => !empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : "",
         ));
         
         

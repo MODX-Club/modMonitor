@@ -55,3 +55,6 @@ $_lang['modmonitor.clear_data_success'] = 'Данные успешно очищ�
 
 $_lang['modmonitor.search_statistics'] = 'Статистика запросов';
 $_lang['modmonitor.called_elements'] = 'Вызываемые элементы';
+
+$_lang['modmonitor.referer'] = 'Источник';
+$_lang['modmonitor.user_agent'] = 'Юзер-Агент';

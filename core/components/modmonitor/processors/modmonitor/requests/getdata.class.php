@@ -94,6 +94,40 @@ class modModmonitorRequestsGetdataProcessor extends modModmonitorGetdataProcesso
             $where["php_error:{$cond}"] = "{$php_error}";
         }
         
+        
+        if($user_agent = trim($this->getProperty("user_agent"))){
+            $cond = strpos($user_agent, "!") === 0 ? "not like" : "like";
+            
+            $user_agent = preg_replace("/^\!/", "", $user_agent);
+            
+            if($user_agent == '*'){
+                $user_agent = '%';
+            }
+            
+            $c->where(array(
+                "user_agent:!="     => "",
+                "and:user_agent:{$cond}"    => "{$user_agent}",
+            ));
+            
+        }
+        
+        
+        if($referer = trim($this->getProperty("referer"))){
+            $cond = strpos($referer, "!") === 0 ? "not like" : "like";
+            
+            $referer = preg_replace("/^\!/", "", $referer);
+            
+            if($referer == '*'){
+                $referer = '%';
+            }
+            
+            $c->where(array(
+                "referer:!="     => "",
+                "and:referer:{$cond}"    => "{$referer}",
+            ));
+            
+        }
+        
         if($where){
             $c->where($where);
         }

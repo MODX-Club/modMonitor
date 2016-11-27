@@ -55,3 +55,7 @@ $_lang['modmonitor.clear_data_success'] = 'Data has been successfully cleared';
 
 $_lang['modmonitor.search_statistics'] = 'Query statistics';
 $_lang['modmonitor.called_elements'] = 'Elements used';
+
+$_lang['modmonitor.referer'] = 'Referer';
+$_lang['modmonitor.user_agent'] = 'userAgent';
+

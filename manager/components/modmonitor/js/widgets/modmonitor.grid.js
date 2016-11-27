@@ -299,12 +299,22 @@ modMonitor.grid.UrlColumn = function(config){
             
             full_link = '<a href="'+ link +'" target="_blank" style="display:inline-block;padding-right: 10px;">'+ value +'</a>';
             
-            if(user_id !== '' && user_id !== null && user_id != '0' && user_id != MODx.user.id){
+            if(user_id !== '' && user_id !== null && user_id != '0'){
                 var auth_link = link + (/\?/.test(link) ? "&" : "?") + 'switch_user='+ user_id;
                 
-                full_link += ' <a href="'+ auth_link +'" target="_blank" title="'+ _("modmonitor.auth_from_name") + record.get('username') +'"><i class="icon icon-user"></i></a>';
+                var user_icon_style="";
+                
+                if(user_id == MODx.user.id){
+                    user_icon_style=';color:green;';
+                }
+                
+                full_link = '<a href="'+ auth_link +'" target="_blank" title="'+ _("modmonitor.auth_from_name") + record.get('username') +'"><i class="icon icon-user" style="'+ user_icon_style +'"></i></a> ' + full_link;
+                
             }
             
+            
+            
+            full_link = '<div style="text-overflow:clip;">'+ full_link +'</div>';
             
             return full_link;
         }
@@ -335,6 +345,7 @@ modMonitor.grid.UserIdColumn = function(config){
             
             return value;
         }
+        ,hidden: true
     });
 
     modMonitor.grid.UserIdColumn.superclass.constructor.call(this,config);
@@ -543,6 +554,45 @@ Ext.extend(modMonitor.grid.FromCacheColumn, Ext.grid.Column,{});
 Ext.grid.Column.types['modmonitor-grid-fromcachecolumn'] = modMonitor.grid.FromCacheColumn;
 
 
+modMonitor.grid.RefererColumn = function(config){
+
+    Ext.applyIf(config, {
+        header: _("modmonitor.referer")
+        ,dataIndex: 'referer'
+        ,renderer: function(value, cell, record){
+            
+            if(value !== ''){
+                
+                value = '<a href="'+ value +'" target="_blank">'+value+'</a>';
+            }
+            
+            return value;
+        }
+    });
+
+    modMonitor.grid.RefererColumn.superclass.constructor.call(this,config);
+};
+
+Ext.extend(modMonitor.grid.RefererColumn, Ext.grid.Column,{});
+
+Ext.grid.Column.types['modmonitor-grid-referercolumn'] = modMonitor.grid.RefererColumn;
+
+
+modMonitor.grid.UserAgentColumn = function(config){
+
+    Ext.applyIf(config, {
+        header: _("modmonitor.user_agent")
+        ,dataIndex: 'user_agent'
+    });
+
+    modMonitor.grid.UserAgentColumn.superclass.constructor.call(this,config);
+};
+
+Ext.extend(modMonitor.grid.UserAgentColumn, Ext.grid.Column,{});
+
+Ext.grid.Column.types['modmonitor-grid-useragentcolumn'] = modMonitor.grid.UserAgentColumn;
+
+
 
 
 
@@ -556,7 +606,7 @@ Ext.grid.Column.types['modmonitor-grid-fromcachecolumn'] = modMonitor.grid.FromC
 modMonitor.grid.QuerySearchField = function(config){
 
     Ext.applyIf(config, {
-        width: 250
+        width: 206
         ,enableKeyEvents: true
         ,name: 'query'
         ,emptyText: _("modmonitor.query")
@@ -577,7 +627,7 @@ modMonitor.grid.RuntimeSearchField = function(config){
         enableKeyEvents: true
         ,name: 'time'
         ,emptyText: _("modmonitor.runtime")
-        ,width: 140
+        ,width: 100
     });
 
     modMonitor.grid.RuntimeSearchField.superclass.constructor.call(this,config);
