@@ -533,12 +533,12 @@ modMonitor.grid.FromCacheColumn = function(config){
         ,renderer: function(value, cell, record){
             
             if(value == '1' || value == 'true'){
-                cell.style = 'color:green;';
+                cell.style += ';color:green;';
                 // value = 'Да';
                 value = '<i class="icon icon-check"></i>';
             }
             else if(value == '' || value == '0' || value == 'false'){
-                cell.style = 'color:red;';
+                cell.style += ';color:red;';
                 value = '<i class="icon icon-close"></i>';
             }
             
