@@ -65,12 +65,15 @@ class modModmonitorRequestsGetdataProcessor extends modModmonitorGetdataProcesso
             $where['from_cache']    = $from_cache == 1 ? 1: "";
         }
         
-        if($status = trim($this->getProperty("status"))){
-            $cond = strpos($status, "!") === 0 ? "not like" : "like";
+        if(
+            $http_status = trim($this->getProperty("http_status"))
+            OR $http_status = trim($this->getProperty("status"))
+        ){
+            $cond = strpos($http_status, "!") === 0 ? "not like" : "like";
             
-            $status = (int)preg_replace("/^\!/", "", $status);
+            $http_status = (int)preg_replace("/^\!/", "", $http_status);
             
-            $where["http_status:{$cond}"] = "{$status}%";
+            $where["http_status:{$cond}"] = "{$http_status}%";
         }
         
         if($php_error = trim($this->getProperty("php_error"))){
