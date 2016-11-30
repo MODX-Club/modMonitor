@@ -6,6 +6,7 @@ class modMonitor{
     public $xpdo;
     protected $connection;
     public $request;
+    protected $item;
     public $items = array();
     
     
@@ -109,16 +110,11 @@ class modMonitor{
             return;
         }
         
+        
         if($this->items){
             $this->request->addMany($this->items);
-            unset($this->items);
+            $this->items = array();
         }
-        
-        # print_r("wfwef");
-        
-        # print '<pre>';
-        # print_r($this->request->toArray());
-        # exit;
         
     
         $memory = round(memory_get_usage()/1024/1024, 2);
@@ -263,7 +259,7 @@ class modMonitor{
     }
     
     public function unsetItem($item){
-        if($this->item === $item){
+        if(!empty($item) AND !empty($this->item) AND $this->item === $item){
             $this->item = null;
         }
     }

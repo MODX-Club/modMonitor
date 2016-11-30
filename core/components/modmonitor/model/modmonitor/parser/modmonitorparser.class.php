@@ -160,7 +160,7 @@ trait modMonitorElement {
             $item->db_queries = 0;
             $item->time = $total_time;
             
-            if(!empty($properties)){
+            if(isset($properties)){
                 
                 if(is_array($properties)){
                     array_walk_recursive($properties, function(& $item, $i){
