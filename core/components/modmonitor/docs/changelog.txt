@@ -1,3 +1,9 @@
+modMonitor-2.6.4-beta
+================================
+- Minor bugfix
+- Create table bugfix
+
+
 modMonitor-2.6.3-beta
 ================================
 - Added Referer

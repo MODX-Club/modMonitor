@@ -9,13 +9,16 @@ if ($object->xpdo) {
       $modx =& $object->xpdo;
       $modelPath = $modx->getOption("{$pkgNameLower}.core_path",null,$modx->getOption('core_path')."components/{$pkgNameLower}/").'model/';
       $modx->addPackage($pkgNameLower,$modelPath);
-
+      
       $manager = $modx->getManager();
-      $modx->setLogLevel(modX::LOG_LEVEL_FATAL);
       
       // adding xpdo objects
       $manager->createObjectContainer('modMonitorRequest');
       $manager->createObjectContainer('modMonitorRequestItem');
+
+
+
+      $modx->setLogLevel(modX::LOG_LEVEL_FATAL);
 
       $manager->addField('modMonitorRequest', 'user_id');
       $manager->addIndex('modMonitorRequest', 'user_id');

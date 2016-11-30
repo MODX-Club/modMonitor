@@ -339,7 +339,7 @@ $xpdo_meta_map['modMonitorRequest']= array (
       array (
         'referer' => 
         array (
-          'length' => '',
+          'length' => '333',
           'collation' => 'A',
           'null' => false,
         ),
@@ -355,7 +355,7 @@ $xpdo_meta_map['modMonitorRequest']= array (
       array (
         'user_agent' => 
         array (
-          'length' => '',
+          'length' => '333',
           'collation' => 'A',
           'null' => false,
         ),
