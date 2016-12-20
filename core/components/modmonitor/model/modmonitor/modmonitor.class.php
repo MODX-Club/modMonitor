@@ -72,27 +72,29 @@ class modMonitor{
         }
         
         
-        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-            $ip = $_SERVER['HTTP_CLIENT_IP'];
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        } else {
-            $ip = $_SERVER['REMOTE_ADDR'];
-        }
-        
-        $data = array_merge($data, array(
-            "uuid"  => $this->modx->uuid,
-            "path"  => MODX_BASE_PATH,
-            "site_url"  => MODX_SITE_URL,
-            "ip"        => $ip,
-            "url"       => $_SERVER['REQUEST_URI'],
-            "parent"    => !empty($_SERVER['HTTP_MODMONITOR_OBJECT_ID']) ? (int)$_SERVER['HTTP_MODMONITOR_OBJECT_ID'] : null,
-            "referer"   => !empty($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : "",
-            "user_agent" => !empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : "",
-        ));
         
         
         if(!$this->request){
+            if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+                $ip = $_SERVER['HTTP_CLIENT_IP'];
+            } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+                $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+            } else {
+                $ip = $_SERVER['REMOTE_ADDR'];
+            }
+            
+            $data = array_merge($data, array(
+                "uuid"  => $this->modx->uuid,
+                "path"  => MODX_BASE_PATH,
+                "site_url"  => MODX_SITE_URL,
+                "ip"        => $ip,
+                "url"       => $_SERVER['REQUEST_URI'],
+                "parent"    => !empty($_SERVER['HTTP_MODMONITOR_OBJECT_ID']) ? (int)$_SERVER['HTTP_MODMONITOR_OBJECT_ID'] : null,
+                "referer"   => !empty($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : "",
+                "user_agent" => !empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : "",
+                "user_id"   => $this->modx->user->id,
+            ));
+            
             $this->request = $this->xpdo->newObject('modMonitorRequest', $data);
         }
         
@@ -147,7 +149,7 @@ class modMonitor{
         $this->setRequestValue('context_key', $modx->context->key);
         $this->setRequestValue('resource_id', isset($modx->resource) ? $modx->resource->id : null);
         $this->setRequestValue('phptemplates_non_cached', isset($templete_properties['phptemplates.non-cached']) ? (int)$templete_properties['phptemplates.non-cached'] : 0);
-        $this->setRequestValue('user_id', $modx->user->id);
+        $this->setRequestValue('user_id', $modx->user->id ? $modx->user->id : 0);
         $this->setRequestValue('from_cache', !$modx->resourceGenerated);
         
         
@@ -227,7 +229,6 @@ class modMonitor{
     # }
     
     public function addItem($object, $replaceItem = true, $addAsChild = true){
-        # $data = array_merge();
         $added = false;
         
         if(!is_object($object)){
@@ -239,16 +240,22 @@ class modMonitor{
         
         if($this->request){
             
-            if(empty($this->item) || !$addAsChild){
-                $this->items[] = $object;
+            if($addAsChild){
+                if(!empty($this->item)){
+                    $children = $this->item->Children;
+                    $children[] = $object;
+                    $this->item->Children = $children;
+                }
+                else{
+                    $this->items[] = $object;
+                }
+                
             }
             else{
-                $children = $this->item->Children;
-                $children[] = $object;
-                $this->item->Children = $children;
+                $this->items[] = $object;
             }
             
-            if($replaceItem){
+            if(empty($this->item) || $replaceItem){
                 $this->item = $object;
             }
             

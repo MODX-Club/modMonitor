@@ -1,3 +1,8 @@
+modMonitor-2.6.6-beta
+================================
+- Minor bugfix
+
+
 modMonitor-2.6.5-beta
 ================================
 - Minor bugfix

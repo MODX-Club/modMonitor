@@ -55,7 +55,7 @@ $settings[] = $setting;
 $setting = $modx->newObject('modSystemSetting');
 $setting->fromArray(array(
  'key' => 'modmonitor.add_javascript',
- 'value' => 1,
+ 'value' => 0,
  'xtype' => 'combo-boolean',
  'namespace' => NAMESPACE_NAME,
  'area' => 'default',
