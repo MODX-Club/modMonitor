@@ -112,6 +112,8 @@ class modMonitor{
             return;
         }
         
+        $this->request->set("isNew", $this->request->isNew());
+        
         
         if($this->items){
             $this->request->addMany($this->items);
@@ -159,6 +161,22 @@ class modMonitor{
         
         $errors = error_get_last();
         
+        if($errors){
+            $this->request->fromArray(array(
+                "php_error"    => $errors['type'],
+                "php_error_info"    => $errors,
+            ));
+        }
+        
+        /*
+            
+        */
+        $this->modx->invokeEvent("OnModmonitorRequestBeforeSave", array(
+            "properties" => array(
+                "request"   => & $this->request,
+            ),
+        ));
+        
         if(
             $min_time_for_save = (float)$this->modx->getOption("modmonitor.min_time_for_save", null)
             AND $min_time_for_save > $this->request->time
@@ -168,14 +186,13 @@ class modMonitor{
             return;
         }
         
-        if($errors){
-            $this->request->fromArray(array(
-                "php_error"    => $errors['type'],
-                "php_error_info"    => $errors,
-            ));
-        }
-        
         $this->request->save();
+        
+        $this->modx->invokeEvent("OnModmonitorRequestSave", array(
+            "properties" => array(
+                "request"   => & $this->request,
+            ),
+        ));
         
         # $this->modx->resource->_output = '';
         
