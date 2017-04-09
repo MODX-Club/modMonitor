@@ -152,7 +152,7 @@ class modMonitor{
         $this->setRequestValue('resource_id', isset($modx->resource) ? $modx->resource->id : null);
         $this->setRequestValue('phptemplates_non_cached', isset($templete_properties['phptemplates.non-cached']) ? (int)$templete_properties['phptemplates.non-cached'] : 0);
         $this->setRequestValue('user_id', $modx->user->id ? $modx->user->id : 0);
-        $this->setRequestValue('from_cache', !$modx->resourceGenerated);
+        $this->setRequestValue('from_cache', $modx->resourceGenerated ? '1' : '0');
         
         
         $this->request->fromArray(array(
