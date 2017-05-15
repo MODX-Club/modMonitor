@@ -140,7 +140,7 @@ trait modMonitorElement {
                 "name"  => $object->name,       // Если будет еще modTemplate использоваться, там templatename, а не name
             ));
             
-            $modMonitor->addItem($item);
+            $modMonitor->addItem($item, $replaceItem = false);
             
         }
         

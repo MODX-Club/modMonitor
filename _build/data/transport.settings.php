@@ -67,7 +67,7 @@ $settings[] = $setting;
 $setting = $modx->newObject('modSystemSetting');
 $setting->fromArray(array(
  'key' => 'modmonitor.exclude_contexts',
- 'value' => '',
+ 'value' => 'mgr',
  'xtype' => 'textfield',
  'namespace' => NAMESPACE_NAME,
  'area' => 'default',
@@ -92,7 +92,7 @@ $settings[] = $setting;
 $setting = $modx->newObject('modSystemSetting');
 $setting->fromArray(array(
  'key' => 'modmonitor.collect_plugins_info',
- 'value' => 1,
+ 'value' => 0,
  'xtype' => 'combo-boolean',
  'namespace' => NAMESPACE_NAME,
  'area' => 'default',
