@@ -46,7 +46,56 @@ $setting->fromArray(array(
  'value' => 0,
  'xtype' => 'combo-boolean',
  'namespace' => NAMESPACE_NAME,
- 'area' => 'connection',
+ 'area' => 'default',
+),'',true,true);
+
+$settings[] = $setting;
+
+
+$setting = $modx->newObject('modSystemSetting');
+$setting->fromArray(array(
+ 'key' => 'modmonitor.add_javascript',
+ 'value' => 0,
+ 'xtype' => 'combo-boolean',
+ 'namespace' => NAMESPACE_NAME,
+ 'area' => 'default',
+),'',true,true);
+
+$settings[] = $setting;
+
+
+$setting = $modx->newObject('modSystemSetting');
+$setting->fromArray(array(
+ 'key' => 'modmonitor.exclude_contexts',
+ 'value' => 'mgr',
+ 'xtype' => 'textfield',
+ 'namespace' => NAMESPACE_NAME,
+ 'area' => 'default',
+),'',true,true);
+
+$settings[] = $setting;
+
+
+$setting = $modx->newObject('modSystemSetting');
+$setting->fromArray(array(
+ 'key' => 'modmonitor.min_time_for_save',
+ 'value' => '',
+ 'xtype' => 'numberfield',
+ 'namespace' => NAMESPACE_NAME,
+ 'area' => 'default',
+),'',true,true);
+
+$settings[] = $setting;
+
+
+
+$setting = $modx->newObject('modSystemSetting');
+$setting->fromArray(array(
+ 'key' => 'modmonitor.collect_plugins_info',
+ 'value' => 0,
+ 'xtype' => 'combo-boolean',
+ 'namespace' => NAMESPACE_NAME,
+ 'area' => 'default',
 ),'',true,true);
 
 $settings[] = $setting;

@@ -1,0 +1,108 @@
+modMonitor-2.7.0-beta
+================================
+- Added fenom support
+
+
+modMonitor-2.6.7-beta
+================================
+- Added plugin events OnModmonitorRequestBeforeSave and OnModmonitorRequestSave
+
+
+modMonitor-2.6.6-beta
+================================
+- Minor bugfix
+
+
+modMonitor-2.6.5-beta
+================================
+- Minor bugfix
+
+
+modMonitor-2.6.4-beta
+================================
+- Minor bugfix
+- Create table bugfix
+
+
+modMonitor-2.6.3-beta
+================================
+- Added Referer
+- Added UserAgent
+- Minor bugfix
+
+
+modMonitor-2.6.2-beta
+================================
+- Fix with plugins statistic
+
+
+modMonitor-2.6.1-beta
+================================
+- Remove $scriptProperties from plugins statistic
+
+
+modMonitor-2.6.0-beta
+================================
+- Added setting modmonitor.collect_plugins_info
+- Added OnModMonitorPrepareRequestQuery event
+- Added custom columns and filters for Requests Grid
+
+
+modMonitor-2.5.0-beta
+================================
+- Added plugin statistic collection
+
+
+modMonitor-2.4.2-beta
+================================
+- Added en localization
+
+
+modMonitor-2.4.1-beta
+================================
+- Added fastFieldParser support
+
+
+modMonitor-2.4.0-beta
+================================
+- Added loging php errors
+
+
+modMonitor-2.3.0-beta
+================================
+- Added HTTP response statuses
+
+
+modMonitor-2.2.1-beta
+================================
+- Added context filter
+- Minor bugfixes
+
+
+modMonitor-2.2.0-beta
+================================
+- Added parents for request and items
+- Added filters
+- Added items tree interface
+- Minor bugfixes
+- Added exclude contexts setting
+- Added min time setting
+- Added truncate button
+
+
+modMonitor-2.1.0-beta
+================================
+- Added pdoParser support
+- Added from_cache flag in statistic
+- Minor bugfix
+
+
+modMonitor-2.0.0-beta
+================================
+- Added visual interface in manager panel
+- Added log user_id
+
+
+modMonitor-1.0.0-beta
+================================
+- First release

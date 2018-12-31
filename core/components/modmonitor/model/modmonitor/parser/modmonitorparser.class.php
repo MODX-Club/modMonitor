@@ -4,9 +4,13 @@ $this->loadClass('modSnippet');
 $this->loadClass('modChunk');
 $this->loadClass('modTemplateVar');
 
-class modMonitorParser extends modParser{
+
+trait modMonitorParserTrait{
     
     # protected $debug = false;
+    
+    public $item;
+    protected $child_item;
     
     # function __construct(xPDO &$modx){
     #     
@@ -19,9 +23,11 @@ class modMonitorParser extends modParser{
     
     public function getElement($class, $name) {
         
+        
+        
         # $this->debug(1, $class);
         # $this->debug(1, $name);
-        $name = $this->realname($name);
+        $realname = $this->realname($name);
         
         $element = parent::getElement($class, $name);
         
@@ -76,7 +82,7 @@ class modMonitorParser extends modParser{
             # }
         }
         else{
-            $this->modx->log(1, "Не был получен элемент {$class} '{$name}'");
+            $this->modx->log( ($this->modx->getOption("modmonitor.debug", null) ? 1 : 2), "Не был получен элемент {$class} '{$realname}'");
         }
         
         return $element;
@@ -104,6 +110,11 @@ class modMonitorParser extends modParser{
 }
 
 
+class modMonitorParser extends modParser{
+    use modMonitorParserTrait;
+}
+
+
 trait modMonitorElement {
 
     protected $object;
@@ -116,10 +127,22 @@ trait modMonitorElement {
         $object = & $this->object;
         $class = $object->_class;
         
+        $modMonitor = & $this->xpdo->getService('modMonitor');
         
         # $start_time = round(microtime(true), 4);
         $start_time = microtime(true);
         # $this->xpdo->debug(1, "start_time: {$start_time}");
+        
+        if($modMonitor){
+            
+            $item = $this->xpdo->newObject("modMonitorRequestItem", array(
+                "type"  => $class,
+                "name"  => $object->name,       // Если будет еще modTemplate использоваться, там templatename, а не name
+            ));
+            
+            $modMonitor->addItem($item, $replaceItem = false);
+            
+        }
         
         $result = $object->process($properties, $content);
         
@@ -131,12 +154,31 @@ trait modMonitorElement {
         
         # $this->xpdo->debug(1, "total_time: " .$total_time);
         
-        if($modMonitor = & $this->xpdo->getService('modMonitor')){
-            $modMonitor->addItem(array(
-                "type"  => $class,
-                "name"  => $object->name,       // Если будет еще modTemplate использоваться, там templatename, а не name
-                "time"  => $total_time,
-            ));
+        
+        if($modMonitor){
+            
+            $item->db_queries = 0;
+            $item->time = $total_time;
+            
+            if(isset($properties)){
+                
+                if(is_array($properties)){
+                    array_walk_recursive($properties, function(& $item, $i){
+                        if(is_scalar($item)){
+                            $item = htmlspecialchars($item);
+                        }
+                    });
+                    
+                    $properties = json_encode($properties);
+                }
+                else{
+                    $properties = htmlspecialchars($properties);
+                }
+            }
+            
+            $item->properties = $properties;
+            
+            $modMonitor->unsetItem($item);
         }
         
         if($this->xpdo->getOption('modmonitor.debug', null, false)){

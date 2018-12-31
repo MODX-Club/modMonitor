@@ -17,6 +17,7 @@ if(!empty($content)){
   $plugin->set('name', $plugin_name );
   $plugin->set('description', $plugin_name.'_desc');
   $plugin->set('plugincode', $content );
+  $plugin->set('disabled', 0);
   
   
   /* add plugin events */
@@ -29,10 +30,10 @@ if(!empty($content)){
    'propertyset' => 0,
   ),'',true,true);
   
-  $events['OnWebPageComplete'] = $modx->newObject('modPluginEvent');
-  $events['OnWebPageComplete'] -> fromArray(array(
-   'event' => 'OnWebPageComplete',
-   'priority' => 1000,
+  $events['OnWebPagePrerender'] = $modx->newObject('modPluginEvent');
+  $events['OnWebPagePrerender'] -> fromArray(array(
+   'event' => 'OnWebPagePrerender',
+   'priority' => 0,
    'propertyset' => 0,
   ),'',true,true);
   

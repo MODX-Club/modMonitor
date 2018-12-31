@@ -7,8 +7,10 @@ $xpdo_meta_map['modMonitorRequestItem']= array (
   'fields' => 
   array (
     'request_id' => NULL,
+    'parent' => 0,
     'type' => NULL,
     'name' => NULL,
+    'properties' => '',
     'time' => NULL,
     'php_memory' => 0,
     'db_queries' => 0,
@@ -17,6 +19,15 @@ $xpdo_meta_map['modMonitorRequestItem']= array (
   'fieldMeta' => 
   array (
     'request_id' => 
+    array (
+      'dbtype' => 'int',
+      'precision' => '10',
+      'attributes' => 'unsigned',
+      'phptype' => 'integer',
+      'null' => false,
+      'index' => 'index',
+    ),
+    'parent' => 
     array (
       'dbtype' => 'int',
       'precision' => '10',
@@ -40,6 +51,12 @@ $xpdo_meta_map['modMonitorRequestItem']= array (
       'phptype' => 'string',
       'null' => false,
       'index' => 'index',
+    ),
+    'properties' => 
+    array (
+      'dbtype' => 'text',
+      'phptype' => 'string',
+      'null' => false,
     ),
     'time' => 
     array (
@@ -94,6 +111,22 @@ $xpdo_meta_map['modMonitorRequestItem']= array (
         ),
       ),
     ),
+    'parent' => 
+    array (
+      'alias' => 'parent',
+      'primary' => false,
+      'unique' => false,
+      'type' => 'BTREE',
+      'columns' => 
+      array (
+        'parent' => 
+        array (
+          'length' => '',
+          'collation' => 'A',
+          'null' => false,
+        ),
+      ),
+    ),
     'type' => 
     array (
       'alias' => 'type',
@@ -134,6 +167,22 @@ $xpdo_meta_map['modMonitorRequestItem']= array (
             "owner"         => "foreign",
             "local"         => "request_id",
             "foreign"       => "id",
+        ),  
+        "Parent" => array(
+            "class" => "modMonitorRequestItem",
+            "cardinality"   => "one",
+            "owner"         => "foreign",
+            "local"         => "parent",
+            "foreign"       => "id",
+        ),  
+    ),
+  "composites"  => array(
+        "Children" => array(
+            "class" => "modMonitorRequestItem",
+            "cardinality"   => "many",
+            "owner"         => "local",
+            "local"         => "id",
+            "foreign"       => "parent",
         ),  
     ),
 );

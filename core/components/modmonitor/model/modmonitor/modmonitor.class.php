@@ -5,8 +5,9 @@ class modMonitor{
     public $modx;
     public $xpdo;
     protected $connection;
-    protected $request;
-    protected $items = array();
+    public $request;
+    protected $item;
+    public $items = array();
     
     
     function __construct(xPDO $modx){
@@ -64,24 +65,36 @@ class modMonitor{
     
     
     public function createRequest(array $data = array()){
-        
-        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-            $ip = $_SERVER['HTTP_CLIENT_IP'];
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        } else {
-            $ip = $_SERVER['REMOTE_ADDR'];
+        if($exclude_contexts = $this->modx->getOption("modmonitor.exclude_contexts", null)){
+            if(in_array($this->modx->context->key, array_map("trim", explode(",", $exclude_contexts)))){
+                return;
+            }
         }
         
-        $data = array_merge($data, array(
-            "uuid"  => $this->modx->uuid,
-            "path"  => MODX_BASE_PATH,
-            "site_url"  => MODX_SITE_URL,
-            "ip"        => $ip,
-            "url"       => $_SERVER['REQUEST_URI'],
-        ));
+        
+        
         
         if(!$this->request){
+            if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+                $ip = $_SERVER['HTTP_CLIENT_IP'];
+            } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+                $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+            } else {
+                $ip = $_SERVER['REMOTE_ADDR'];
+            }
+            
+            $data = array_merge($data, array(
+                "uuid"  => $this->modx->uuid,
+                "path"  => MODX_BASE_PATH,
+                "site_url"  => MODX_SITE_URL,
+                "ip"        => $ip,
+                "url"       => $_SERVER['REQUEST_URI'],
+                "parent"    => !empty($_SERVER['HTTP_MODMONITOR_OBJECT_ID']) ? (int)$_SERVER['HTTP_MODMONITOR_OBJECT_ID'] : null,
+                "referer"   => !empty($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : "",
+                "user_agent" => !empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : "",
+                "user_id"   => $this->modx->user->id,
+            ));
+            
             $this->request = $this->xpdo->newObject('modMonitorRequest', $data);
         }
         
@@ -90,36 +103,189 @@ class modMonitor{
     
     
     public function saveRequest(){
-        $saved = false;
+        $modx = & $this->modx;
         
         if(
-            $this->request 
-            AND $this->request->isNew()
+            !$this->request 
+            # OR !$this->request->isNew()
         ){
-            if($this->items){
-                $this->request->addMany($this->items);
-            }
-            
-            # print '<pre>';
-            # print_r($this->request->toArray());
-            # exit;
-            
-            $saved = $this->request->save();
+            return;
         }
         
-        return $saved;
+        $this->request->set("isNew", $this->request->isNew());
+        
+        
+        if($this->items){
+            $this->request->addMany($this->items);
+            $this->items = array();
+        }
+        
+    
+        $memory = round(memory_get_usage()/1024/1024, 2);
+
+        // print "<div>Memory: {$memory}</div>";
+        
+        $totalTime= (microtime(true) - $modx->startTime);
+        $queryTime= $modx->queryTime;
+        // $queryTime= sprintf("%2.4f s", $queryTime);
+        $queries= isset ($modx->executedQueries) ? $modx->executedQueries : 0;
+        // $totalTime= sprintf("%2.4f s", $totalTime);
+        $phpTime= $totalTime - $queryTime;
+        // $phpTime= sprintf("%2.4f s", $phpTime);
+        // $modx->log(1, "<div>TotalTime: {$totalTime}</div>");
+        
+        $templete_properties = array();
+        
+        // $modx->log(1, get_class($modx->resource));
+        // $modx->log(1, get_class($modx->resource->Template));
+        
+        
+        if(!empty($modx->resource) AND $templete = $modx->resource->Template){
+            $templete_properties = $templete->getProperties();
+        }
+        
+        $this->setRequestValue('db_queries', $queries);
+        $this->setRequestValue('db_queries_time', round($queryTime, 4));
+        $this->setRequestValue('php_memory', $memory);
+        $this->setRequestValue('time', round($totalTime, 4));
+        $this->setRequestValue('context_key', $modx->context->key);
+        $this->setRequestValue('resource_id', isset($modx->resource) ? $modx->resource->id : null);
+        $this->setRequestValue('phptemplates_non_cached', isset($templete_properties['phptemplates.non-cached']) ? (int)$templete_properties['phptemplates.non-cached'] : 0);
+        $this->setRequestValue('user_id', $modx->user->id ? $modx->user->id : 0);
+        $this->setRequestValue('from_cache', $modx->resourceGenerated ? '1' : '0');
+        
+        
+        $this->request->fromArray(array(
+            "http_status"    => http_response_code(),
+        ));
+        
+        $errors = error_get_last();
+        
+        if($errors){
+            $this->request->fromArray(array(
+                "php_error"    => $errors['type'],
+                "php_error_info"    => $errors,
+            ));
+        }
+        
+        /*
+            
+        */
+        $this->modx->invokeEvent("OnModmonitorRequestBeforeSave", array(
+            "properties" => array(
+                "request"   => & $this->request,
+            ),
+        ));
+        
+        if(
+            $min_time_for_save = (float)$this->modx->getOption("modmonitor.min_time_for_save", null)
+            AND $min_time_for_save > $this->request->time
+            AND $this->request->http_status == 200
+            AND !$errors
+        ){
+            return;
+        }
+        
+        $this->request->save();
+        
+        $this->modx->invokeEvent("OnModmonitorRequestSave", array(
+            "properties" => array(
+                "request"   => & $this->request,
+            ),
+        ));
+        
+        # $this->modx->resource->_output = '';
+        
+        # if (!empty($this->request) AND $this->request->id) {
+        #     
+        #     
+        #     
+        # }
     }
     
-    public function addItem(array $data){
-        # $data = array_merge();
+    
+    public function shutdown(){
+        
+        
+        
+        $this->saveRequest();
+        
+
+        
+    }
+    
+    
+    # public function addItem($object){
+    #     # $data = array_merge();
+    #     $added = false;
+    #     
+    #     if(!is_object($object)){
+    #         $object = $this->xpdo->newObject('modMonitorRequestItem', $object);
+    #     }
+    #     else if(!($object instanceof modMonitorRequestItem)){
+    #         return $added;
+    #     }
+    #     
+    #     if($this->request){
+    #         
+    #         if(empty($this->item)){
+    #             $this->items[] = $object;
+    #         }
+    #         else{
+    #             $children = $this->item->Children;
+    #             $children[] = $object;
+    #             $this->item->Children = $children;
+    #         }
+    #         
+    #         $this->item = $object;
+    #         
+    #         $added = true;
+    #     }
+    #     
+    #     return $added;
+    # }
+    
+    public function addItem($object, $replaceItem = true, $addAsChild = true){
         $added = false;
         
+        if(!is_object($object)){
+            $object = $this->xpdo->newObject('modMonitorRequestItem', $object);
+        }
+        else if(!($object instanceof modMonitorRequestItem)){
+            return $added;
+        }
+        
         if($this->request){
-            $this->items[] = $this->xpdo->newObject('modMonitorRequestItem', $data);
+            
+            if($addAsChild){
+                if(!empty($this->item)){
+                    $children = $this->item->Children;
+                    $children[] = $object;
+                    $this->item->Children = $children;
+                }
+                else{
+                    $this->items[] = $object;
+                }
+                
+            }
+            else{
+                $this->items[] = $object;
+            }
+            
+            if(empty($this->item) || $replaceItem){
+                $this->item = $object;
+            }
+            
             $added = true;
         }
         
         return $added;
+    }
+    
+    public function unsetItem($item){
+        if(!empty($item) AND !empty($this->item) AND $this->item === $item){
+            $this->item = null;
+        }
     }
     
     
@@ -136,6 +302,8 @@ class modMonitor{
                 case 'context_key':
                 case 'resource_id':
                 case 'phptemplates_non_cached':
+                case 'user_id':
+                case 'from_cache':
                     
                     break;
                     
